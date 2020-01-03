@@ -20,6 +20,10 @@ Fast and easy experimentation is prioritized. Content will be copied from public
 - base q-net software [here](https://github.com/rlcode/reinforcement-learning/blob/master/3-atari/1-breakout/breakout_dqn.py) 
 - execution environment [here](https://github.com/jaimeps/docker-rl-gym#docker-hub) 
   - nvidia TOS denies distribution of `cudnn` lib, so environment is CPU-only 
+- gan [here](https://github.com/eriklindernoren/Keras-GAN/blob/master/gan/gan.py) 
+  - yeah, that's right--standard GANs. I'm that confident.  
+
+I've tested the q-net and gan software. It's good stuff. The q-net really needs some heavy parallelization, ideally a parameter server. However, I don't have the dev time and will eat the cycles instead. Fortunately, it seems to be using available CPU cores and does seem to need a lot of RAM--so, I'll use a beefy node.  
 
 ## Build 
 
