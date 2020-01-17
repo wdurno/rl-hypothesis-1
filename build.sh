@@ -4,7 +4,7 @@ echo "configuring environment variables..."
 echo "===="
 cat config.sh 
 echo "===="
-bash config.sh  
+source config.sh  
 echo "===="
 env | grep RL_HYPOTHESIS_1  
 echo "===="
@@ -18,4 +18,5 @@ cat docker-build.sh
 echo "===="
 bash docker-build.sh 
 echo "===="
+rm app/service-account.json
 

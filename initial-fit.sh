@@ -1,1 +1,2 @@
-bash script/spin-up-big-rl.sh
+source config.sh
+source scripts/spin-up-big-rl.sh
