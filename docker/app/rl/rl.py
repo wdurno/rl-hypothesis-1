@@ -3,6 +3,7 @@ import os
 
 import gym
 import random
+import pickle
 import numpy as np
 import tensorflow as tf
 from collections import deque
@@ -281,4 +282,9 @@ if __name__ == "__main__":
             agent.model.save_weights("./save_model/breakout_dqn.h5")
             # upload to GCP storage 
             blob = bucket.blob('rl-full.h5') 
-            blob.upload_from_filename('./save_model/breakout_dqn.h5') 
+            blob.upload_from_filename('./save_model/breakout_dqn.h5')
+            # save and upload memory 
+            with open('./save_observations/memory.pkl', 'wb') as f: 
+                pickle.dump(agent.memory, f) 
+            blob = bucket.blob('memory.pkl') 
+            blob.upload_from_filename('./save_observations/memory.pkl') 
