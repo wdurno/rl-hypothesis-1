@@ -12,5 +12,5 @@ ADD app /app
 
 WORKDIR /app
 
-ENTRYPOINT bash /app/initial-rl.sh
+ENTRYPOINT bash /app/entrypoint.sh
 

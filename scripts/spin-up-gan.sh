@@ -1,4 +1,4 @@
-gcloud beta compute --project=gdax-dnn instances create-with-container big-rl-1 \
+gcloud beta compute --project=gdax-dnn instances create-with-container big-gan-1 \
 	--zone=us-central1-a \
 	--machine-type=n1-standard-16 \
 	--subnet=default \
@@ -15,4 +15,4 @@ gcloud beta compute --project=gdax-dnn instances create-with-container big-rl-1 
 	--container-image=${RL_HYPOTHESIS_1_DOCKER_IMAGE} \
        	--container-restart-policy=always \
 	--labels=container-vm=cos-stable-79-12607-80-0 \
-	--container-env=JOB=1-RL 
+	--container-env=JOB=2-GAN 

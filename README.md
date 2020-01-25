@@ -37,7 +37,7 @@ I've tested the q-net and gan software. It's good stuff. The q-net really needs 
 ## Execution 
 
 - Fit initial model 
-  - Run `bash initial-fit.sh`
+  - Run `bash 1-initial-fit.sh`
 - Fit GAN 
 - Generate samples 
 - Fit q-net with generated samples 

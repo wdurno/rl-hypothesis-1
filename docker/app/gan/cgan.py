@@ -9,6 +9,9 @@ from keras.models import Sequential, Model
 from keras.optimizers import Adam
 
 import matplotlib.pyplot as plt
+# turn off plots 
+import matplotlib
+matplotlib.use('Agg')
 
 import numpy as np
 
@@ -156,7 +159,9 @@ class CGAN():
 
             # If at save interval => save generated image samples
             if epoch % sample_interval == 0:
-                self.sample_images(epoch)
+                ## we're not sampling images any more--they're abstract game transitions. 
+                #self.sample_images(epoch)
+                pass 
 
     def sample_images(self, epoch):
         r, c = 2, 5
