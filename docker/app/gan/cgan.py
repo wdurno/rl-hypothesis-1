@@ -1,6 +1,6 @@
 from __future__ import print_function, division
 
-from keras.datasets import mnist
+from google.cloud import storage
 from keras.layers import Input, Dense, Reshape, Flatten, Dropout, multiply
 from keras.layers import BatchNormalization, Activation, Embedding, ZeroPadding2D
 from keras.layers.advanced_activations import LeakyReLU
@@ -14,15 +14,57 @@ import matplotlib
 matplotlib.use('Agg')
 
 import numpy as np
+import os
+import pickle 
+
+cgan_data_path = '/app/cgan-data.pkl'
+cgan_statistics_path = '/app/cgan-statistics.pkl'
+cgan_stastics_name = 'cgan-statistics.pkl'
+cgan_model_path = '/app/cgan-model.h5'
+cgan_model_name = 'cgan-model.h5'
+bucket_name = os.environ['BUCKET_NAME'] 
+
+def download_blob(bucket_name, source_blob_name, destination_file_name):
+    """Downloads a blob from the bucket."""
+    # bucket_name = "your-bucket-name"
+    # source_blob_name = "storage-object-name"
+    # destination_file_name = "local/path/to/file"
+    storage_client = storage.Client.from_service_account_json('/app/service-account.json')
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(source_blob_name)
+    blob.download_to_filename(destination_file_name)
+    print(
+        "Blob {} downloaded to {}.".format(
+            source_blob_name, destination_file_name
+        )
+    )
+    pass
+
+def upload_blob(bucket_name, source_file_name, destination_blob_name):
+    """Uploads a file to the bucket."""
+    # bucket_name = "your-bucket-name"
+    # source_file_name = "local/path/to/file"
+    # destination_blob_name = "storage-object-name"
+    storage_client = storage.Client.from_service_account_json('/app/service-account.json')
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(destination_blob_name)
+    blob.upload_from_filename(source_file_name)
+    print(
+        "File {} uploaded to {}.".format(
+            source_file_name, destination_blob_name
+        )
+    )
+    pass
+
+download_blob(bucket_name, 'cgan-data.pkl-backup', cgan_data_path) 
+with open(cgan_data_path, 'rb') as f:
+    data = pickle.load(f) 
 
 class CGAN():
     def __init__(self):
         # Input shape
-        self.img_rows = 28
-        self.img_cols = 28
-        self.channels = 1
-        self.img_shape = (self.img_rows, self.img_cols, self.channels)
-        self.num_classes = 10
+        self.img_shape = (1024) 
+        self.num_classes = 3
         self.latent_dim = 100
 
         optimizer = Adam(0.0002, 0.5)
@@ -68,7 +110,7 @@ class CGAN():
         model.add(Dense(1024))
         model.add(LeakyReLU(alpha=0.2))
         model.add(BatchNormalization(momentum=0.8))
-        model.add(Dense(np.prod(self.img_shape), activation='tanh'))
+        model.add(Dense(np.prod(self.img_shape), activation='relu'))
         model.add(Reshape(self.img_shape))
 
         model.summary()
@@ -110,13 +152,15 @@ class CGAN():
         return Model([img, label], validity)
 
     def train(self, epochs, batch_size=128, sample_interval=50):
+        
+        statistics = {'d_loss': [], 'acc': [], 'g_loss': []} 
 
         # Load the dataset
-        (X_train, y_train), (_, _) = mnist.load_data()
+        X_train, y_train = data 
 
         # Configure input
-        X_train = (X_train.astype(np.float32) - 127.5) / 127.5
-        X_train = np.expand_dims(X_train, axis=3)
+        X_train = X_train.astype(np.float32) 
+        #X_train = np.expand_dims(X_train, axis=3) # seems specific to mnist 
         y_train = y_train.reshape(-1, 1)
 
         # Adversarial ground truths
@@ -149,42 +193,29 @@ class CGAN():
             # ---------------------
 
             # Condition on labels
-            sampled_labels = np.random.randint(0, 10, batch_size).reshape(-1, 1)
+            sampled_labels = np.random.randint(0, self.num_classes, batch_size).reshape(-1, 1)
 
             # Train the generator
             g_loss = self.combined.train_on_batch([noise, sampled_labels], valid)
 
             # Plot the progress
             print ("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (epoch, d_loss[0], 100*d_loss[1], g_loss))
+            statistcs['d_loss'].append(d_loss[0]) 
+            statistics['g_loss'].append(g_loss[0]) 
+            statistics['acc'].append(100*d_loss[1]) 
 
             # If at save interval => save generated image samples
             if epoch % sample_interval == 0:
-                ## we're not sampling images any more--they're abstract game transitions. 
-                #self.sample_images(epoch)
+                # save and upload statistics 
+                with open(cgan_statistics_path, 'wb') as f:
+                    pickle.dump(statistics, f) 
+                upload_blob(bucket_name, cgan_statistics_path, cgan_statistics_name) 
+                # save and upload model 
+                self.generator.save_weights(cgan_model_path) 
+                upload_blob(bucket_name, cgan_model_path, cgan_model_name) 
                 pass 
-
-    def sample_images(self, epoch):
-        r, c = 2, 5
-        noise = np.random.normal(0, 1, (r * c, 100))
-        sampled_labels = np.arange(0, 10).reshape(-1, 1)
-
-        gen_imgs = self.generator.predict([noise, sampled_labels])
-
-        # Rescale images 0 - 1
-        gen_imgs = 0.5 * gen_imgs + 0.5
-
-        fig, axs = plt.subplots(r, c)
-        cnt = 0
-        for i in range(r):
-            for j in range(c):
-                axs[i,j].imshow(gen_imgs[cnt,:,:,0], cmap='gray')
-                axs[i,j].set_title("Digit: %d" % sampled_labels[cnt])
-                axs[i,j].axis('off')
-                cnt += 1
-        fig.savefig("images/%d.png" % epoch)
-        plt.close()
 
 
 if __name__ == '__main__':
     cgan = CGAN()
-    cgan.train(epochs=20000, batch_size=32, sample_interval=200)
+    cgan.train(epochs=20000, batch_size=10000, sample_interval=200)

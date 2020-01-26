@@ -15,4 +15,4 @@ gcloud beta compute --project=gdax-dnn instances create-with-container big-gan-1
 	--container-image=${RL_HYPOTHESIS_1_DOCKER_IMAGE} \
        	--container-restart-policy=always \
 	--labels=container-vm=cos-stable-79-12607-80-0 \
-	--container-env=JOB=3-GAN 
+	--container-env=JOB=2-TR 
