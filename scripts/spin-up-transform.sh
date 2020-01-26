@@ -1,4 +1,4 @@
-gcloud beta compute --project=gdax-dnn instances create-with-container big-gan-1 \
+gcloud beta compute --project=gdax-dnn instances create-with-container big-transform-1 \
 	--zone=us-central1-a \
 	--machine-type=n1-standard-16 \
 	--subnet=default \

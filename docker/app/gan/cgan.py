@@ -19,7 +19,7 @@ import pickle
 
 cgan_data_path = '/app/cgan-data.pkl'
 cgan_statistics_path = '/app/cgan-statistics.pkl'
-cgan_stastics_name = 'cgan-statistics.pkl'
+cgan_statistics_name = 'cgan-statistics.pkl'
 cgan_model_path = '/app/cgan-model.h5'
 cgan_model_name = 'cgan-model.h5'
 bucket_name = os.environ['BUCKET_NAME'] 
@@ -56,14 +56,15 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
     )
     pass
 
-download_blob(bucket_name, 'cgan-data.pkl-backup', cgan_data_path) 
+if not os.path.isfile(cgan_data_path): 
+    download_blob(bucket_name, 'cgan-data.pkl-backup', cgan_data_path) 
 with open(cgan_data_path, 'rb') as f:
     data = pickle.load(f) 
 
 class CGAN():
     def __init__(self):
         # Input shape
-        self.img_shape = (1024) 
+        self.img_shape = (1024,1) 
         self.num_classes = 3
         self.latent_dim = 100
 
@@ -110,7 +111,7 @@ class CGAN():
         model.add(Dense(1024))
         model.add(LeakyReLU(alpha=0.2))
         model.add(BatchNormalization(momentum=0.8))
-        model.add(Dense(np.prod(self.img_shape), activation='relu'))
+        model.add(Dense(np.prod(self.img_shape)))
         model.add(Reshape(self.img_shape))
 
         model.summary()
@@ -159,6 +160,7 @@ class CGAN():
         X_train, y_train = data 
 
         # Configure input
+        X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1)) # similar to images 
         X_train = X_train.astype(np.float32) 
         #X_train = np.expand_dims(X_train, axis=3) # seems specific to mnist 
         y_train = y_train.reshape(-1, 1)
@@ -200,8 +202,8 @@ class CGAN():
 
             # Plot the progress
             print ("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (epoch, d_loss[0], 100*d_loss[1], g_loss))
-            statistcs['d_loss'].append(d_loss[0]) 
-            statistics['g_loss'].append(g_loss[0]) 
+            statistics['d_loss'].append(d_loss[0]) 
+            statistics['g_loss'].append(g_loss) 
             statistics['acc'].append(100*d_loss[1]) 
 
             # If at save interval => save generated image samples
