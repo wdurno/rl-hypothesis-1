@@ -1,4 +1,4 @@
 export RL_HYPOTHESIS_1_DOCKER_REGISTRY_HEAD=gcr.io/gdax-dnn/
-export RL_HYPOTHESIS_1_DOCKER_IMAGE=gcr.io/gdax-dnn/rl-hypothesis-1-env@sha256:f95c1b86cb9343f4c0d1ff2d33d17a3cba7ac94d0a766fd91925d13d4fee8a99
+export RL_HYPOTHESIS_1_DOCKER_IMAGE=gcr.io/gdax-dnn/rl-hypothesis-1-env@sha256:f07b79981baf244c707a7d7712f32c9911dab1040ff6e41496c1950deb5ff4a3
 export RL_HYPOTHESIS_1_SERVICE_ACCOUNT_JSON_PATH=/home/wdurno/project-service-account.json
 export RL_HYPOTHESIS_1_BUCKET=gdax-dnn-tmp-1
