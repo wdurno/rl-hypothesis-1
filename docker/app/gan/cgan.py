@@ -1,9 +1,9 @@
 from __future__ import print_function, division
 
 from google.cloud import storage
-from keras.layers import Input, Dense, Reshape, Flatten, Dropout, multiply
+from keras.layers import Input, Dense, Reshape, Flatten, Dropout, multiply, Add
 from keras.layers import BatchNormalization, Activation, Embedding, ZeroPadding2D
-from keras.layers.advanced_activations import LeakyReLU
+from keras.layers.advanced_activations import LeakyReLU, ReLU 
 from keras.layers.convolutional import UpSampling2D, Conv2D
 from keras.models import Sequential, Model
 from keras.optimizers import Adam
@@ -112,6 +112,7 @@ class CGAN():
         model.add(LeakyReLU(alpha=0.2))
         model.add(BatchNormalization(momentum=0.8))
         model.add(Dense(np.prod(self.img_shape)))
+        model.add(ReLU(negative_slope=0.2, threshold=0.0)) 
         model.add(Reshape(self.img_shape))
 
         model.summary()
@@ -157,7 +158,10 @@ class CGAN():
         statistics = {'d_loss': [], 'acc': [], 'g_loss': []} 
 
         # Load the dataset
-        X_train, y_train = data 
+        X_train, y_train = data
+
+        # removing unfortunate transform 
+        X_train += 3.5 
 
         # Configure input
         X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1)) # similar to images 

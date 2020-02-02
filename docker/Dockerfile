@@ -4,6 +4,7 @@ ARG BUCKET_NAME
 ENV BUCKET_NAME=${BUCKET_NAME}
 
 RUN pip install scikit-image && \
+pip install keras==2.2.5 && \
 pip install google-cloud-storage && \
 apt-get update && \
 apt-get install vim -y 
