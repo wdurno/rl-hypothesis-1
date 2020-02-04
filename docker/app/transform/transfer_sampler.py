@@ -6,6 +6,7 @@ import numpy as np
 from keras.models import Sequential, Model 
 from keras.layers import Dense, Flatten
 from keras.layers.convolutional import Conv2D
+from keras.layers.advanced_activations import ReLU
 
 model_path = '/app/transfer-model.h5' 
 data_path = '/app/data.pkl'
@@ -68,9 +69,11 @@ def build_model(state_size, action_size):
     model = Sequential()
     model.add(Conv2D(32, (8, 8), strides=(4, 4), activation='relu', input_shape=state_size))
     model.add(Conv2D(64, (4, 4), strides=(2, 2), activation='relu'))
-    model.add(Conv2D(64, (3, 3), strides=(1, 1), activation='relu'))
+    model.add(Conv2D(64, (3, 3), strides=(1, 1)))
     model.add(Flatten())
-    model.add(Dense(512, activation='relu'))
+    model.add(ReLU())
+    model.add(Dense(512))
+    model.add(ReLU())
     model.add(Dense(action_size))
     model.summary()
     return model
@@ -78,7 +81,7 @@ def build_model(state_size, action_size):
 full_model = build_model((84, 84, 4), 3) 
 full_model.load_weights(model_path) 
 
-rl_1_dense = Model(inputs=full_model.inputs, outputs=full_model.layers[4].output)
+rl_1_dense = Model(inputs=full_model.inputs, outputs=full_model.layers[5].output)
 rl_convs = Model(inputs=full_model.inputs, outputs=full_model.layers[3].output)
 
 def _transfer_transform_rl_observation(rl_observation, model=rl_1_dense):
@@ -138,12 +141,10 @@ def transfer_sample(n=10000, model=rl_1_dense):
 
 def normalize(ndarray):
     ndarray = np.log1p(ndarray)
-    ndarray = ndarray * (ndarray > 0.) # relu
     return ndarray - 3.5
 
 def denormalize(ndarray):
     ndarray = ndarray + 3.5
-    ndarray = ndarray * (ndarray > 0.) # relu
     ndarray = np.expm1(ndarray)
     return ndarray
 
@@ -156,12 +157,12 @@ def cgan_sample(n=10000, model=rl_1_dense):
     tr = transfer_sample(n, model)
     labels = np.array(list(map(_map_reward_dead_to_int, tr)))
     states = np.concatenate(list(map(_map_transfers_to_array, tr)))
-    states = normalize(states)
+    #states = normalize(states)
     return states, labels
 
 def transform_all_and_upload(model=rl_1_dense): 
     sample_tuple = cgan_sample(n=-1, model=model) 
-    with open(cgan_data_path, 'rb') as f: 
+    with open(cgan_data_path, 'wb') as f: 
         pickle.dump(sample_tuple, f) 
     upload_blob(bucket_name, cgan_data_path, 'cgan-data.pkl') 
     pass 

@@ -57,7 +57,7 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
     pass
 
 if not os.path.isfile(cgan_data_path): 
-    download_blob(bucket_name, 'cgan-data.pkl-backup', cgan_data_path) 
+    download_blob(bucket_name, 'cgan-data.pkl', cgan_data_path) 
 with open(cgan_data_path, 'rb') as f:
     data = pickle.load(f) 
 
@@ -171,9 +171,6 @@ class CGAN():
 
         # Load the dataset
         X_train, y_train = data
-
-        # removing unfortunate transform 
-        X_train += 3.5 
 
         # Configure input
         X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1)) # similar to images 
