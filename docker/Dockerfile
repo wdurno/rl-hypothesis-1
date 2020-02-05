@@ -3,15 +3,16 @@ FROM jaimeps/rl-gym:latest
 ARG BUCKET_NAME
 ENV BUCKET_NAME=${BUCKET_NAME}
 
-RUN pip install scikit-image && \
+ADD app /app
+
+RUN chmod 777 /app/entrypoint.sh && \
+pip install scikit-image && \
 pip install keras==2.2.5 && \
 pip install google-cloud-storage && \
 apt-get update && \
 apt-get install vim -y 
 
-ADD app /app 
-
 WORKDIR /app
 
-ENTRYPOINT bash /app/entrypoint.sh
+ENTRYPOINT ["bash", "/app/entrypoint.sh"]
 

@@ -15,6 +15,7 @@ matplotlib.use('Agg')
 
 import numpy as np
 import os
+import sys 
 import pickle 
 
 cgan_data_path = '/app/cgan-data.pkl'
@@ -105,23 +106,20 @@ class CGAN():
         model.add(Dense(128, input_dim=self.latent_dim))
         model.add(LeakyReLU(alpha=0.2))
         model.add(BatchNormalization(momentum=0.8))
-        model.add(Dense(256))
+        model.add(Dense(128, input_dim=self.latent_dim))
         model.add(LeakyReLU(alpha=0.2))
         model.add(BatchNormalization(momentum=0.8))
-        model.add(Dense(256)) 
-        model.add(LeakyReLU(alpha=0.2)) 
-        model.add(BatchNormalization(momentum=0.8)) 
+        model.add(Dense(128, input_dim=self.latent_dim))
+        model.add(LeakyReLU(alpha=0.2))
+        model.add(BatchNormalization(momentum=0.8))
         model.add(Dense(256)) 
         model.add(LeakyReLU(alpha=0.2)) 
         model.add(BatchNormalization(momentum=0.8)) 
         model.add(Dense(512)) 
         model.add(LeakyReLU(alpha=0.2)) 
         model.add(BatchNormalization(momentum=0.8)) 
-        model.add(Dense(1024))
-        model.add(LeakyReLU(alpha=0.2))
-        model.add(BatchNormalization(momentum=0.8))
-        model.add(Dense(np.prod(self.img_shape)))
-        model.add(ReLU(negative_slope=0.2, threshold=0.0)) 
+        model.add(Dense(np.prod(self.img_shape))) # 1024 
+        #model.add(ReLU(negative_slope=0.2, threshold=0.0)) # data normally distributed 
         model.add(Reshape(self.img_shape))
 
         model.summary()
@@ -147,8 +145,14 @@ class CGAN():
         model.add(Dense(256))
         model.add(LeakyReLU(alpha=0.2))
         model.add(Dropout(0.4))
-        model.add(Dense(126)) 
+        model.add(Dense(128)) 
         model.add(LeakyReLU(alpha=0.2)) 
+        model.add(Dropout(0.4))
+        model.add(Dense(128))
+        model.add(LeakyReLU(alpha=0.2))
+        model.add(Dropout(0.4))
+        model.add(Dense(128))
+        model.add(LeakyReLU(alpha=0.2))
         model.add(Dropout(0.4))
         model.add(Dense(1, activation='sigmoid'))
         model.summary()
@@ -215,6 +219,7 @@ class CGAN():
 
             # Plot the progress
             print ("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (epoch, d_loss[0], 100*d_loss[1], g_loss))
+            sys.stdout.flush() 
             statistics['d_loss'].append(d_loss[0]) 
             statistics['g_loss'].append(g_loss) 
             statistics['acc'].append(100*d_loss[1]) 
