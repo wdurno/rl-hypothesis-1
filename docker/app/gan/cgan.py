@@ -23,7 +23,11 @@ cgan_statistics_path = '/app/cgan-statistics.pkl'
 cgan_statistics_name = 'cgan-statistics.pkl'
 cgan_model_path = '/app/cgan-model.h5'
 cgan_model_name = 'cgan-model.h5'
+cgan_discr_path = '/app/cgan-discr-model.h5' 
+cgan_discr_name = 'cgan-discr-model.h5' 
 bucket_name = os.environ['BUCKET_NAME'] 
+load_model_name = 'cgan-model.h5-backup'
+load_model_file_name = '/app/cgan-model.h5-backup' 
 
 def download_blob(bucket_name, source_blob_name, destination_file_name):
     """Downloads a blob from the bucket."""
@@ -62,6 +66,9 @@ if not os.path.isfile(cgan_data_path):
 with open(cgan_data_path, 'rb') as f:
     data = pickle.load(f) 
 
+if load_model_name is not None: 
+    model_h5 = download_blob(bucket_name, load_model_name, load_model_file_name) 
+
 class CGAN():
     def __init__(self):
         # Input shape
@@ -69,7 +76,7 @@ class CGAN():
         self.num_classes = 3
         self.latent_dim = 100
 
-        optimizer = Adam(0.001, 0.5)
+        optimizer = Adam(0.01, 0.5)
 
         # Build and compile the discriminator
         self.discriminator = self.build_discriminator()
@@ -79,6 +86,8 @@ class CGAN():
 
         # Build the generator
         self.generator = self.build_generator()
+        if load_model_name: 
+            self.generator.load_weights(load_model_file_name)
 
         # The generator takes noise and the target label as input
         # and generates the corresponding digit of that label
@@ -227,12 +236,15 @@ class CGAN():
                 with open(cgan_statistics_path, 'wb') as f:
                     pickle.dump(statistics, f) 
                 upload_blob(bucket_name, cgan_statistics_path, cgan_statistics_name) 
-                # save and upload model 
+                # save and upload generator  
                 self.generator.save_weights(cgan_model_path) 
                 upload_blob(bucket_name, cgan_model_path, cgan_model_name) 
+                # save and upload discriminator 
+                self.discriminator.save_weights(cgan_discr_path) 
+                upload_blob(bucket_name, cgan_discr_path, cgan_discr_name) 
                 pass 
 
 
 if __name__ == '__main__':
     cgan = CGAN()
-    cgan.train(epochs=20000, batch_size=100, sample_interval=200)
+    cgan.train(epochs=20000, batch_size=1000, sample_interval=200)
