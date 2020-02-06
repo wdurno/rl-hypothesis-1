@@ -69,7 +69,7 @@ class CGAN():
         self.num_classes = 3
         self.latent_dim = 100
 
-        optimizer = Adam(0.0002, 0.5)
+        optimizer = Adam(0.001, 0.5)
 
         # Build and compile the discriminator
         self.discriminator = self.build_discriminator()
@@ -106,13 +106,13 @@ class CGAN():
         model.add(Dense(128, input_dim=self.latent_dim))
         model.add(LeakyReLU(alpha=0.2))
         model.add(BatchNormalization(momentum=0.8))
-        model.add(Dense(128, input_dim=self.latent_dim))
+        model.add(Dense(256, input_dim=self.latent_dim))
         model.add(LeakyReLU(alpha=0.2))
         model.add(BatchNormalization(momentum=0.8))
-        model.add(Dense(128, input_dim=self.latent_dim))
+        model.add(Dense(512, input_dim=self.latent_dim))
         model.add(LeakyReLU(alpha=0.2))
         model.add(BatchNormalization(momentum=0.8))
-        model.add(Dense(256)) 
+        model.add(Dense(512)) 
         model.add(LeakyReLU(alpha=0.2)) 
         model.add(BatchNormalization(momentum=0.8)) 
         model.add(Dense(512)) 
@@ -142,13 +142,10 @@ class CGAN():
         model.add(Dense(512))
         model.add(LeakyReLU(alpha=0.2))
         model.add(Dropout(0.4))
-        model.add(Dense(256))
+        model.add(Dense(512))
         model.add(LeakyReLU(alpha=0.2))
         model.add(Dropout(0.4))
-        model.add(Dense(128)) 
-        model.add(LeakyReLU(alpha=0.2)) 
-        model.add(Dropout(0.4))
-        model.add(Dense(128))
+        model.add(Dense(512))
         model.add(LeakyReLU(alpha=0.2))
         model.add(Dropout(0.4))
         model.add(Dense(128))
@@ -238,4 +235,4 @@ class CGAN():
 
 if __name__ == '__main__':
     cgan = CGAN()
-    cgan.train(epochs=20000, batch_size=10000, sample_interval=200)
+    cgan.train(epochs=20000, batch_size=100, sample_interval=200)
