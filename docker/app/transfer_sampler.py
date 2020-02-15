@@ -1,8 +1,11 @@
 from google.cloud import storage
+from google.oauth2 import service_account
+from googleapiclient import discovery 
 import os
 import random 
 import pickle
 import numpy as np
+from time import sleep 
 from keras.models import Sequential, Model 
 from keras.layers import Dense, Flatten
 from keras.layers.convolutional import Conv2D
@@ -49,6 +52,14 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
             source_file_name, destination_blob_name
         )
     )
+    pass
+
+def attempt_shutdown(vm-name, zone, project, instance): 
+    credentials = service_account.Credentials.from_service_account_file('/app/service-account.json')
+    service = discovery.build('compute', 'v1', credentials=credentials)
+    request = service.instances().stop(project=project, zone=zone, instance=instance)
+    print('Attempting shutdown...') 
+    response = request.execute()
     pass
 
 # download model only if needed 
@@ -123,14 +134,15 @@ def _map_transfers_to_array(transfer_transformed_rl_observation):
     transfer_state = transfer_transformed_rl_observation[0] 
     transfer_next_state = transfer_transformed_rl_observation[3] 
     # clipped deltas are approximately normal 
-    return np.clip(transfer_next_state - transfer_state, -150., 150.) 
-    #return np.concatenate([transfer_state, transfer_next_state], axis=1) 
+    diff = np.clip(transfer_next_state - transfer_state, -150., 150.) 
+    return np.concatenate([np.clip(transfer_state, -400., 400), diff], axis=1) 
 
-## transform no-longer bijective 
-## inverse does not exist 
-#def _map_array_to_transfers(transfer_array, split_point=512): 
-#    "returns state, next_state"
-#    return transfer_array[:,:split_point], transfer_array[:,split_point:] 
+def _map_array_to_transfers(transfer_array, split_point=512): 
+    "returns state, next_state"
+    before = transfer_array[:, :split_point]
+    diff = transfer_array[:, split_point:] 
+    after = before + diff
+    return before, after 
 
 def transfer_sample(n=10000, model=rl_1_dense): 
     '''
@@ -172,5 +184,9 @@ def transform_all_and_upload(model=rl_1_dense):
     pass 
 
 if __name__ == '__main__':
-    transform_all_and_upload() 
+    transform_all_and_upload()
+    while True:
+        #attempt_shutdown() 
+        print('done') 
+        sleep(100) 
 

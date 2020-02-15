@@ -26,9 +26,9 @@ cgan_model_name = 'cgan-model.h5'
 cgan_discr_path = '/app/cgan-discr-model.h5' 
 cgan_discr_name = 'cgan-discr-model.h5' 
 bucket_name = os.environ['BUCKET_NAME'] 
-load_model_name = 'cgan-model.h5-backup'
+load_model_name = None #'cgan-model.h5-backup'
 load_model_file_path = '/app/cgan-model.h5-backup'
-load_discr_name = 'cgan-discr-model.h5-backup'
+load_discr_name = None #'cgan-discr-model.h5-backup'
 load_discr_file_path = '/app/cgan-discr-model.h5-backup' 
 
 def download_blob(bucket_name, source_blob_name, destination_file_name):
@@ -77,11 +77,11 @@ if load_discr_name is not None:
 class CGAN():
     def __init__(self):
         # Input shape
-        self.img_shape = (512, 1) 
+        self.img_shape = (1024, 1) 
         self.num_classes = 3
         self.latent_dim = 100
 
-        optimizer = Adam(0.001, 0.5)
+        optimizer = Adam(0.01, 0.5)
 
         # Build and compile the discriminator
         self.discriminator = self.build_discriminator()
@@ -122,18 +122,18 @@ class CGAN():
         model.add(Dense(128, input_dim=self.latent_dim))
         model.add(LeakyReLU(alpha=0.2))
         model.add(BatchNormalization(momentum=0.8))
-        model.add(Dense(256, input_dim=self.latent_dim))
-        model.add(LeakyReLU(alpha=0.2))
-        model.add(BatchNormalization(momentum=0.8))
-        model.add(Dense(512, input_dim=self.latent_dim))
-        model.add(LeakyReLU(alpha=0.2))
-        model.add(BatchNormalization(momentum=0.8))
-        model.add(Dense(512)) 
-        model.add(LeakyReLU(alpha=0.2)) 
-        model.add(BatchNormalization(momentum=0.8)) 
-        model.add(Dense(512)) 
-        model.add(LeakyReLU(alpha=0.2)) 
-        model.add(BatchNormalization(momentum=0.8)) 
+        #model.add(Dense(256, input_dim=self.latent_dim))
+        #model.add(LeakyReLU(alpha=0.2))
+        #model.add(BatchNormalization(momentum=0.8))
+        #model.add(Dense(512, input_dim=self.latent_dim))
+        #model.add(LeakyReLU(alpha=0.2))
+        #model.add(BatchNormalization(momentum=0.8))
+        #model.add(Dense(512)) 
+        #model.add(LeakyReLU(alpha=0.2)) 
+        #model.add(BatchNormalization(momentum=0.8)) 
+        #model.add(Dense(512)) 
+        #model.add(LeakyReLU(alpha=0.2)) 
+        #model.add(BatchNormalization(momentum=0.8)) 
         model.add(Dense(np.prod(self.img_shape))) #512  
         #model.add(ReLU(negative_slope=0.2, threshold=0.0)) # data normally distributed 
         model.add(Reshape(self.img_shape))
@@ -153,17 +153,18 @@ class CGAN():
 
         model = Sequential()
 
-        model.add(Dense(1024, input_dim=np.prod(self.img_shape)))
+        model.add(Dense(512, input_dim=np.prod(self.img_shape)))
         model.add(LeakyReLU(alpha=0.2))
+        model.add(Dropout(0.4)) 
+        #model.add(Dense(512))
+        #model.add(LeakyReLU(alpha=0.2))
+        #model.add(Dropout(0.4))
         model.add(Dense(512))
         model.add(LeakyReLU(alpha=0.2))
         model.add(Dropout(0.4))
         model.add(Dense(512))
         model.add(LeakyReLU(alpha=0.2))
-        model.add(Dropout(0.4))
-        model.add(Dense(512))
-        model.add(LeakyReLU(alpha=0.2))
-        model.add(Dropout(0.4))
+        model.add(Dropout(0.4)) 
         model.add(Dense(128))
         model.add(LeakyReLU(alpha=0.2))
         model.add(Dropout(0.4))

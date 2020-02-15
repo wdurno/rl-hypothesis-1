@@ -56,7 +56,7 @@ class DQNAgent:
         self.sess.run(tf.global_variables_initializer())
 
         if self.load_model:
-            self.model.load_weights("./save_model/breakout_dqn.h5")
+            self.model.load_weights("./breakout_dqn.h5")
 
     # if the error is in [-1, 1], then the cost is quadratic to the error
     # But outside the interval, the cost is linear to the error
@@ -279,12 +279,12 @@ if __name__ == "__main__":
                 agent.avg_q_max, agent.avg_loss = 0, 0
 
         if e % 1000 == 0:
-            agent.model.save_weights("./save_model/breakout_dqn.h5")
+            agent.model.save_weights("./breakout_dqn.h5")
             # upload to GCP storage 
             blob = bucket.blob('rl-full.h5') 
-            blob.upload_from_filename('./save_model/breakout_dqn.h5')
+            blob.upload_from_filename('./breakout_dqn.h5')
             # save and upload memory 
-            with open('./save_observations/memory.pkl', 'wb') as f: 
+            with open('./memory.pkl', 'wb') as f: 
                 pickle.dump(agent.memory, f) 
-            blob = bucket.blob('memory.pkl') 
-            blob.upload_from_filename('./save_observations/memory.pkl') 
+            blob = bucket.blob('./memory.pkl') 
+            blob.upload_from_filename('./memory.pkl') 
