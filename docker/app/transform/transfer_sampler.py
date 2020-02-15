@@ -122,11 +122,15 @@ def _map_int_to_reward_dead(state_int):
 def _map_transfers_to_array(transfer_transformed_rl_observation):
     transfer_state = transfer_transformed_rl_observation[0] 
     transfer_next_state = transfer_transformed_rl_observation[3] 
-    return np.concatenate([transfer_state, transfer_next_state], axis=1) 
+    # clipped deltas are approximately normal 
+    return np.clip(transfer_next_state - transfer_state, -150., 150.) 
+    #return np.concatenate([transfer_state, transfer_next_state], axis=1) 
 
-def _map_array_to_transfers(transfer_array, split_point=512): 
-    "returns state, next_state"
-    return transfer_array[:,:split_point], transfer_array[:,split_point:] 
+## transform no-longer bijective 
+## inverse does not exist 
+#def _map_array_to_transfers(transfer_array, split_point=512): 
+#    "returns state, next_state"
+#    return transfer_array[:,:split_point], transfer_array[:,split_point:] 
 
 def transfer_sample(n=10000, model=rl_1_dense): 
     '''
