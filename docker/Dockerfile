@@ -10,7 +10,7 @@ pip install scikit-image && \
 pip install keras==2.2.5 && \
 pip install google-cloud-storage && \
 pip install google-api-python-client && \
-pip install install oauth2client && \
+pip install oauth2client && \
 apt-get update && \
 apt-get install vim -y 
 

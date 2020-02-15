@@ -81,7 +81,7 @@ class CGAN():
         self.num_classes = 3
         self.latent_dim = 100
 
-        optimizer = Adam(0.01, 0.5)
+        optimizer = Adam(0.005, 0.5)
 
         # Build and compile the discriminator
         self.discriminator = self.build_discriminator()
@@ -134,7 +134,7 @@ class CGAN():
         #model.add(Dense(512)) 
         #model.add(LeakyReLU(alpha=0.2)) 
         #model.add(BatchNormalization(momentum=0.8)) 
-        model.add(Dense(np.prod(self.img_shape))) #512  
+        model.add(Dense(np.prod(self.img_shape)))  
         #model.add(ReLU(negative_slope=0.2, threshold=0.0)) # data normally distributed 
         model.add(Reshape(self.img_shape))
 
@@ -255,4 +255,4 @@ class CGAN():
 
 if __name__ == '__main__':
     cgan = CGAN()
-    cgan.train(epochs=20000, batch_size=1000, sample_interval=200)
+    cgan.train(epochs=20000, batch_size=100, sample_interval=200)

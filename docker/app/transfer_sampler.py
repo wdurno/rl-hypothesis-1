@@ -54,14 +54,6 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
     )
     pass
 
-def attempt_shutdown(vm-name, zone, project, instance): 
-    credentials = service_account.Credentials.from_service_account_file('/app/service-account.json')
-    service = discovery.build('compute', 'v1', credentials=credentials)
-    request = service.instances().stop(project=project, zone=zone, instance=instance)
-    print('Attempting shutdown...') 
-    response = request.execute()
-    pass
-
 # download model only if needed 
 if not os.path.isfile(model_path): 
     download_blob(bucket_name, 'rl-full.h5-backup', model_path) 
