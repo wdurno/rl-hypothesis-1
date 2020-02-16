@@ -1,6 +1,7 @@
+from gcp_api_wrapper import shutdown
 from google.cloud import storage 
 import os 
-
+from time import sleep 
 import gym
 import random
 import pickle
@@ -288,3 +289,7 @@ if __name__ == "__main__":
                 pickle.dump(agent.memory, f) 
             blob = bucket.blob('./memory.pkl') 
             blob.upload_from_filename('./memory.pkl') 
+    # work complete 
+    while True: 
+        shutdown() 
+        sleep(100) 

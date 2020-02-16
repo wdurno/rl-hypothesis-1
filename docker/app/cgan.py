@@ -1,6 +1,6 @@
 from __future__ import print_function, division
 
-from google.cloud import storage
+from gcp_api_wrapper import download_blob, upload_blob, shutdown
 from keras.layers import Input, Dense, Reshape, Flatten, Dropout, multiply, Add
 from keras.layers import BatchNormalization, Activation, Embedding, ZeroPadding2D
 from keras.layers.advanced_activations import LeakyReLU, ReLU 
@@ -16,7 +16,8 @@ matplotlib.use('Agg')
 import numpy as np
 import os
 import sys 
-import pickle 
+import pickle
+from time import sleep 
 
 cgan_data_path = '/app/cgan-data.pkl'
 cgan_statistics_path = '/app/cgan-statistics.pkl'
@@ -25,54 +26,21 @@ cgan_model_path = '/app/cgan-model.h5'
 cgan_model_name = 'cgan-model.h5'
 cgan_discr_path = '/app/cgan-discr-model.h5' 
 cgan_discr_name = 'cgan-discr-model.h5' 
-bucket_name = os.environ['BUCKET_NAME'] 
 load_model_name = None #'cgan-model.h5-backup'
 load_model_file_path = '/app/cgan-model.h5-backup'
 load_discr_name = None #'cgan-discr-model.h5-backup'
 load_discr_file_path = '/app/cgan-discr-model.h5-backup' 
 
-def download_blob(bucket_name, source_blob_name, destination_file_name):
-    """Downloads a blob from the bucket."""
-    # bucket_name = "your-bucket-name"
-    # source_blob_name = "storage-object-name"
-    # destination_file_name = "local/path/to/file"
-    storage_client = storage.Client.from_service_account_json('/app/service-account.json')
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(source_blob_name)
-    blob.download_to_filename(destination_file_name)
-    print(
-        "Blob {} downloaded to {}.".format(
-            source_blob_name, destination_file_name
-        )
-    )
-    pass
-
-def upload_blob(bucket_name, source_file_name, destination_blob_name):
-    """Uploads a file to the bucket."""
-    # bucket_name = "your-bucket-name"
-    # source_file_name = "local/path/to/file"
-    # destination_blob_name = "storage-object-name"
-    storage_client = storage.Client.from_service_account_json('/app/service-account.json')
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(destination_blob_name)
-    blob.upload_from_filename(source_file_name)
-    print(
-        "File {} uploaded to {}.".format(
-            source_file_name, destination_blob_name
-        )
-    )
-    pass
-
 if not os.path.isfile(cgan_data_path): 
-    download_blob(bucket_name, 'cgan-data.pkl', cgan_data_path) 
+    download_blob('cgan-data.pkl', cgan_data_path) 
 with open(cgan_data_path, 'rb') as f:
     data = pickle.load(f) 
 
 if load_model_name is not None: 
-    download_blob(bucket_name, load_model_name, load_model_file_path) 
+    download_blob(load_model_name, load_model_file_path) 
 
 if load_discr_name is not None:
-    download_blob(bucket_name, load_discr_name, load_discr_file_path)  
+    download_blob(load_discr_name, load_discr_file_path)  
 
 class CGAN():
     def __init__(self):
@@ -243,16 +211,19 @@ class CGAN():
                 # save and upload statistics 
                 with open(cgan_statistics_path, 'wb') as f:
                     pickle.dump(statistics, f) 
-                upload_blob(bucket_name, cgan_statistics_path, cgan_statistics_name) 
+                upload_blob(cgan_statistics_path, cgan_statistics_name) 
                 # save and upload generator  
                 self.generator.save_weights(cgan_model_path) 
-                upload_blob(bucket_name, cgan_model_path, cgan_model_name) 
+                upload_blob(cgan_model_path, cgan_model_name) 
                 # save and upload discriminator 
                 self.discriminator.save_weights(cgan_discr_path) 
-                upload_blob(bucket_name, cgan_discr_path, cgan_discr_name) 
+                upload_blob(cgan_discr_path, cgan_discr_name) 
                 pass 
 
 
 if __name__ == '__main__':
     cgan = CGAN()
     cgan.train(epochs=20000, batch_size=100, sample_interval=200)
+    while True: 
+        shutdown()
+        sleep(100) 

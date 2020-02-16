@@ -15,7 +15,7 @@ gcloud beta compute --project=${RL_HYPOTHESIS_1_PROJECT} instances create-with-c
 	--container-image=${RL_HYPOTHESIS_1_DOCKER_IMAGE} \
        	--container-restart-policy=always \
 	--labels=container-vm=cos-stable-79-12607-80-0 \
-	--container-env=JOB=1-RL \
+	--container-env=JOB=${RL_HYPOTHESIS_1_JOB} \
         --container-env=ZONE=${RL_HYPOTHESIS_1_ZONE} \
 	--container-env=PROJECT=${RL_HYPOTHESIS_1_PROJECT} \
 	--container-env=INSTANCE=${RL_HYPOTHESIS_1_INSTANCE} 

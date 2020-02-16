@@ -35,11 +35,11 @@ def upload_blob(source_file_name, destination_blob_name, bucket_name=os.environ[
     )
     pass
 
-def attempt_shutdown(vm_name, zone, project, instance):
+def shutdown(zone=os.environ['ZONE'], project=os.environ['PROJECT'], instance=os.environ['INSTANCE']):
     credentials = service_account.Credentials.from_service_account_file('/app/service-account.json')
     service = discovery.build('compute', 'v1', credentials=credentials)
     request = service.instances().stop(project=project, zone=zone, instance=instance)
-    print('Attempting shutdown...')
+    print('Shutting down...')
     response = request.execute()
     pass
 

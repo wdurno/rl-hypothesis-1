@@ -1,6 +1,4 @@
-from google.cloud import storage
-from google.oauth2 import service_account
-from googleapiclient import discovery 
+from gcp_api_wrapper import download_blob, upload_blob, shutdown
 import os
 import random 
 import pickle
@@ -14,54 +12,15 @@ from keras.layers.advanced_activations import ReLU
 model_path = '/app/transfer-model.h5' 
 data_path = '/app/data.pkl'
 cgan_data_path = '/app/cgan-data.pkl'
-bucket_name = os.environ['BUCKET_NAME'] 
-
-def download_blob(bucket_name, source_blob_name, destination_file_name):
-    """Downloads a blob from the bucket."""
-    # bucket_name = "your-bucket-name"
-    # source_blob_name = "storage-object-name"
-    # destination_file_name = "local/path/to/file"
-
-    storage_client = storage.Client.from_service_account_json('/app/service-account.json')
-
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(source_blob_name)
-    blob.download_to_filename(destination_file_name)
-
-    print(
-        "Blob {} downloaded to {}.".format(
-            source_blob_name, destination_file_name
-        )
-    )
-    pass
-
-def upload_blob(bucket_name, source_file_name, destination_blob_name):
-    """Uploads a file to the bucket."""
-    # bucket_name = "your-bucket-name"
-    # source_file_name = "local/path/to/file"
-    # destination_blob_name = "storage-object-name"
-
-    storage_client = storage.Client.from_service_account_json('/app/service-account.json')
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(destination_blob_name)
-
-    blob.upload_from_filename(source_file_name)
-
-    print(
-        "File {} uploaded to {}.".format(
-            source_file_name, destination_blob_name
-        )
-    )
-    pass
 
 # download model only if needed 
 if not os.path.isfile(model_path): 
-    download_blob(bucket_name, 'rl-full.h5-backup', model_path) 
+    download_blob('rl-full.h5-backup', model_path) 
     pass
 
 # download data only if needed 
 if not os.path.isfile(data_path): 
-    download_blob(bucket_name, 'memory.pkl-backup', data_path) 
+    download_blob('memory.pkl-backup', data_path) 
     pass
 
 with open(data_path , 'rb') as f: 
@@ -172,13 +131,12 @@ def transform_all_and_upload(model=rl_1_dense):
     sample_tuple = cgan_sample(n=-1, model=model) 
     with open(cgan_data_path, 'wb') as f: 
         pickle.dump(sample_tuple, f) 
-    upload_blob(bucket_name, cgan_data_path, 'cgan-data.pkl') 
+    upload_blob(cgan_data_path, 'cgan-data.pkl') 
     pass 
 
 if __name__ == '__main__':
     transform_all_and_upload()
     while True:
-        #attempt_shutdown() 
-        print('done') 
+        shutdown() 
         sleep(100) 
 
