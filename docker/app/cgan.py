@@ -1,3 +1,4 @@
+## libraries 
 from __future__ import print_function, division
 
 from gcp_api_wrapper import download_blob, upload_blob, shutdown
@@ -19,6 +20,7 @@ import sys
 import pickle
 from time import sleep 
 
+## constants 
 cgan_data_path = '/app/cgan-data.pkl'
 cgan_statistics_path = '/app/cgan-statistics.pkl'
 cgan_statistics_name = 'cgan-statistics.pkl'
@@ -26,24 +28,22 @@ cgan_model_path = '/app/cgan-model.h5'
 cgan_model_name = 'cgan-model.h5'
 cgan_discr_path = '/app/cgan-discr-model.h5' 
 cgan_discr_name = 'cgan-discr-model.h5' 
-load_model_name = None #'cgan-model.h5-backup'
-load_model_file_path = '/app/cgan-model.h5-backup'
-load_discr_name = None #'cgan-discr-model.h5-backup'
-load_discr_file_path = '/app/cgan-discr-model.h5-backup' 
 
 if not os.path.isfile(cgan_data_path): 
     download_blob('cgan-data.pkl', cgan_data_path) 
 with open(cgan_data_path, 'rb') as f:
     data = pickle.load(f) 
 
-if load_model_name is not None: 
-    download_blob(load_model_name, load_model_file_path) 
-
-if load_discr_name is not None:
-    download_blob(load_discr_name, load_discr_file_path)  
-
 class CGAN():
-    def __init__(self):
+    def __init__(self,
+            load_discr_path=None,
+            load_model_path=None
+            ):
+        '''
+        Builds a cGAN.
+        Args
+         - load_discr_name: if not `None`, load discriminator weights. 
+        '''
         # Input shape
         self.img_shape = (1024, 1) 
         self.num_classes = 3
@@ -53,7 +53,7 @@ class CGAN():
 
         # Build and compile the discriminator
         self.discriminator = self.build_discriminator()
-        if load_discr_name is not None: 
+        if load_discr_file_path is not None: 
             self.discriminator.load_weights(load_discr_file_path) 
         self.discriminator.compile(loss=['binary_crossentropy'],
             optimizer=optimizer,
@@ -61,7 +61,7 @@ class CGAN():
         
         # Build the generator
         self.generator = self.build_generator()
-        if load_model_name is not None: 
+        if load_model_file_path is not None: 
             self.generator.load_weights(load_model_file_path)
 
         # The generator takes noise and the target label as input

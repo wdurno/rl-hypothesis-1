@@ -31,7 +31,7 @@ I've tested the q-net and gan software. It's good stuff. The q-net really needs 
 
 - Build environment: GCP console. 
 - Configure with `config.sh` 
-  - Service account must have read/write to cloud storage via `gsutil`  
+  - Service account must have read/write to cloud storage via `gsutil` and ability to shutdown VMs.  
 - Execute build with `bash build.sh` 
 
 ## Execution 
