@@ -49,7 +49,7 @@ class CGAN():
         self.num_classes = 9
         self.latent_dim = 100
 
-        optimizer = Adam(0.005, 0.9)
+        optimizer = Adam(0.003, 0.9)
 
         # Build and compile the discriminator
         self.discriminator = self.build_discriminator()
@@ -96,9 +96,9 @@ class CGAN():
         model.add(Dense(512, input_dim=self.latent_dim))
         model.add(LeakyReLU(alpha=0.2))
         model.add(BatchNormalization(momentum=0.8))
-        #model.add(Dense(512)) 
-        #model.add(LeakyReLU(alpha=0.2)) 
-        #model.add(BatchNormalization(momentum=0.8)) 
+        model.add(Dense(512)) 
+        model.add(LeakyReLU(alpha=0.2)) 
+        model.add(BatchNormalization(momentum=0.8)) 
         #model.add(Dense(512)) 
         #model.add(LeakyReLU(alpha=0.2)) 
         #model.add(BatchNormalization(momentum=0.8)) 
@@ -130,9 +130,9 @@ class CGAN():
         model.add(Dense(512))
         model.add(LeakyReLU(alpha=0.2))
         model.add(Dropout(0.4))
-        #model.add(Dense(512))
-        #model.add(LeakyReLU(alpha=0.2))
-        #model.add(Dropout(0.4)) 
+        model.add(Dense(512))
+        model.add(LeakyReLU(alpha=0.2))
+        model.add(Dropout(0.4)) 
         model.add(Dense(128))
         model.add(LeakyReLU(alpha=0.2))
         model.add(Dropout(0.4))
@@ -266,7 +266,7 @@ if __name__ == '__main__':
     while continue_training: 
         print('TRAINING ATTEMPT ' + str(attempt_num))
         cgan = CGAN()
-        continue_training = not cgan.train(epochs=20000, batch_size=100, sample_interval=200) 
+        continue_training = not cgan.train(epochs=25000, batch_size=100, sample_interval=200) 
         attempt_num += 1 
     while True: 
         shutdown()
