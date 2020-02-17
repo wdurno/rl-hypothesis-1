@@ -49,20 +49,20 @@ class CGAN():
         self.num_classes = 9
         self.latent_dim = 100
 
-        optimizer = Adam(0.001, 0.5)
+        optimizer = Adam(0.005, 0.9)
 
         # Build and compile the discriminator
         self.discriminator = self.build_discriminator()
-        if load_discr_file_path is not None: 
-            self.discriminator.load_weights(load_discr_file_path) 
+        if load_discr_path is not None: 
+            self.discriminator.load_weights(load_discr_path) 
         self.discriminator.compile(loss=['binary_crossentropy'],
             optimizer=optimizer,
             metrics=['accuracy'])
         
         # Build the generator
         self.generator = self.build_generator()
-        if load_model_file_path is not None: 
-            self.generator.load_weights(load_model_file_path)
+        if load_model_path is not None: 
+            self.generator.load_weights(load_model_path)
 
         # The generator takes noise and the target label as input
         # and generates the corresponding digit of that label
@@ -121,7 +121,7 @@ class CGAN():
 
         model = Sequential()
 
-        model.add(Dense(512, input_dim=np.prod(self.img_shape)))
+        model.add(Dense(256, input_dim=np.prod(self.img_shape)))
         model.add(LeakyReLU(alpha=0.2))
         model.add(Dropout(0.4)) 
         model.add(Dense(512))
@@ -130,9 +130,9 @@ class CGAN():
         model.add(Dense(512))
         model.add(LeakyReLU(alpha=0.2))
         model.add(Dropout(0.4))
-        model.add(Dense(512))
-        model.add(LeakyReLU(alpha=0.2))
-        model.add(Dropout(0.4)) 
+        #model.add(Dense(512))
+        #model.add(LeakyReLU(alpha=0.2))
+        #model.add(Dropout(0.4)) 
         model.add(Dense(128))
         model.add(LeakyReLU(alpha=0.2))
         model.add(Dropout(0.4))
@@ -150,8 +150,43 @@ class CGAN():
         validity = model(model_input)
 
         return Model([img, label], validity)
+    
+    @staticmethod 
+    def __is_training_failure(statistics, min_steps=1000):
+        '''
+        Hueristics applied to ensure training has a chance of success. 
+        Can detect a training failure. 
+        Returns `True` if training has failed. 
+        '''
+        acc = statistics['acc'] 
+        d_loss = statistics['d_loss'] 
+        g_loss = statistics['g_loss'] 
+        if len(acc) < min_steps:
+            # too few observations to conclude failure 
+            return False 
+        acc_sub = acc[-min_steps:]
+        if all([a < 10. for a in acc_sub]):
+            # accuracy too low 
+            return True 
+        if all([a > 90. for a in acc_sub]): 
+            # accuracy too high 
+            return True 
+        if all([a < 52. and a > 48. for a in acc_sub]): 
+            # likely discriminator failure 
+            return True 
+        if len(acc) > 10000:
+            if all([a < 20. for a in acc_sub]): 
+                return True 
+            if all([a > 80. for a in acc_sub]): 
+                return True 
+        # no strong evidence of failure 
+        return False 
 
     def train(self, epochs, batch_size=128, sample_interval=50):
+        '''
+        Returns `True` on success. 
+        Returns `False` on likely failure. 
+        '''
         
         statistics = {'d_loss': [], 'acc': [], 'g_loss': []} 
 
@@ -208,6 +243,9 @@ class CGAN():
 
             # If at save interval => save generated image samples
             if epoch % sample_interval == 0:
+                # check for failure 
+                if CGAN.__is_training_failure(statistics, min_steps=2000):
+                    return False 
                 # save and upload statistics 
                 with open(cgan_statistics_path, 'wb') as f:
                     pickle.dump(statistics, f) 
@@ -218,12 +256,18 @@ class CGAN():
                 # save and upload discriminator 
                 self.discriminator.save_weights(cgan_discr_path) 
                 upload_blob(cgan_discr_path, cgan_discr_name) 
-                pass 
-
+                pass
+        # training complete 
+        return True 
 
 if __name__ == '__main__':
-    cgan = CGAN()
-    cgan.train(epochs=20000, batch_size=100, sample_interval=200)
+    continue_training = True
+    attempt_num = 0 
+    while continue_training: 
+        print('TRAINING ATTEMPT ' + str(attempt_num))
+        cgan = CGAN()
+        continue_training = not cgan.train(epochs=20000, batch_size=100, sample_interval=200) 
+        attempt_num += 1 
     while True: 
         shutdown()
         sleep(100) 
