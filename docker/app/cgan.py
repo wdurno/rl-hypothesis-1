@@ -46,7 +46,7 @@ class CGAN():
         '''
         # Input shape
         self.img_shape = (1024, 1) 
-        self.num_classes = 3
+        self.num_classes = 9
         self.latent_dim = 100
 
         optimizer = Adam(0.001, 0.5)

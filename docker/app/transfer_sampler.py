@@ -58,28 +58,52 @@ def _transfer_transform_rl_observation(rl_observation, model=rl_1_dense):
 
 def _map_reward_dead_to_int(rl_observation): 
     rewarded = rl_observation[2] > .5 
-    dead = rl_observation[4] 
-    if (not rewarded) and dead: 
+    dead = rl_observation[4]
+    action = rl_observation[1] 
+    if (not rewarded) and dead and action == 0: 
         return 0
-    elif rewarded and (not dead):
+    elif rewarded and (not dead) and action == 0:
         return 1
-    elif (not rewarded) and (not dead):
+    elif (not rewarded) and (not dead) and action == 0:
         return 2
-    # rewarded and dead 
+    elif (not rewarded) and dead and action == 1:
+        return 3
+    elif rewarded and (not dead) and action == 1:
+        return 4
+    elif (not rewarded) and (not dead) and action == 1:
+        return 5
+    elif (not rewarded) and dead and action == 2:
+        return 6
+    elif rewarded and (not dead) and action == 2:
+        return 7
+    elif (not rewarded) and (not dead) and action == 2:
+        return 8
     # this should not occur 
-    return 3 
+    return None  
 
-def _map_int_to_reward_dead(state_int):
-    "returns a (reward, dead) tuple"
+def _map_int_to_action_reward_dead(state_int):
+    "returns an (action, reward, dead) tuple"
     if state_int == 0:
-        return 0., True
+        return 0, 0., True
     elif state_int == 1:
-        return 1., False
+        return 0, 1., False
     elif state_int == 2:
-        return 0., False
+        return 0, 0., False
+    elif state_int == 3:
+        return 1, 0., True
+    elif state_int == 4:
+        return 1, 1., False
+    elif state_int == 5:
+        return 1, 0., False
+    elif state_int == 6:
+        return 2, 0., True
+    elif state_int == 7:
+        return 2, 1., False
+    elif state_int == 8:
+        return 2, 0., False
     # state_int == 3 
     # this should not occur 
-    return 1., True 
+    return None  
 
 def _map_transfers_to_array(transfer_transformed_rl_observation):
     transfer_state = transfer_transformed_rl_observation[0] 
@@ -90,8 +114,8 @@ def _map_transfers_to_array(transfer_transformed_rl_observation):
 
 def _map_array_to_transfers(transfer_array, split_point=512): 
     "returns state, next_state"
-    before = transfer_array[:, :split_point]
-    diff = transfer_array[:, split_point:] 
+    before = transfer_array[:, split_point:] 
+    diff = transfer_array[:, :split_point]
     after = before + diff
     return before, after 
 
@@ -106,14 +130,12 @@ def transfer_sample(n=10000, model=rl_1_dense):
         sample = data
     return list(map(_transfer_transform_rl_observation, sample))
 
-def normalize(ndarray):
-    ndarray = np.log1p(ndarray)
-    return ndarray - 3.5
-
-def denormalize(ndarray):
-    ndarray = ndarray + 3.5
-    ndarray = np.expm1(ndarray)
-    return ndarray
+def inverse_transfer_sample():
+    '''
+    Extracts q-learning data in the form of `(s_t, r_t, s_t+1, d_t)`.
+    No actions are returned because `s_t` are embeddings, encoding all action information. This won't work... 
+    '''
+    pass
 
 def cgan_sample(n=10000, model=rl_1_dense):
     '''
@@ -124,7 +146,6 @@ def cgan_sample(n=10000, model=rl_1_dense):
     tr = transfer_sample(n, model)
     labels = np.array(list(map(_map_reward_dead_to_int, tr)))
     states = np.concatenate(list(map(_map_transfers_to_array, tr)))
-    #states = normalize(states)
     return states, labels
 
 def transform_all_and_upload(model=rl_1_dense): 
