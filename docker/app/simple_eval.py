@@ -140,7 +140,10 @@ def __sample_fake_data(n):
     fake_data = inverse_transfer_sample(fake_data_raw, list(labels)) 
     return fake_data
 
-if __name__ == '__main__': 
+if __name__ == '__main__':
+    from time import sleep 
+    while True: 
+        sleep(100) # debugging... 
     # TODO 
     pass 
 

@@ -14,3 +14,8 @@ if [ $JOB == "3-gan" ]; then
 	exec python3 cgan.py
 fi 
 
+if [ $JOB == "4-si" ]; then
+        cd /app
+        exec python3 simple_eval.py
+fi
+
