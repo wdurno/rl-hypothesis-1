@@ -7,7 +7,7 @@
 # large dataset. The evaluation will work as follows.
 # 1. Sample data, pooling simulants with real. 
 # 2. Fit the q-net 
-# 3. Generate the metric: %-wins of game trials 
+# 3. Generate the metric: average score 
 
 ## libraries 
 from gcp_api_wrapper import download_blob, upload_blob, shutdown
@@ -20,6 +20,7 @@ from keras.models import Sequential, Model
 from keras.optimizers import Adam
 from keras import backend as K 
 import os 
+import gym
 import pickle
 import random 
 import numpy as np 
@@ -59,6 +60,8 @@ def simple_sample(sample_size, probability_simulated):
     ## sample fake data 
     fake_data = __sample_fake_data(n_fake) 
     ## merge and return 
+    real_data = list(real_data)
+    fake_data = list(fake_data) 
     return real_data + fake_data 
 
 def fit(data, n_args=3, discount=.99, n_iters=1000, verbose=True):
@@ -99,11 +102,26 @@ def fit(data, n_args=3, discount=.99, n_iters=1000, verbose=True):
     ## Model returned as side-effect. Return loss statistics 
     return losses 
 
-def metric_trials(model, sample_size): 
+def metric_trials(sample_size = 1000, max_steps=10000): 
     '''
-    Metric: Percent-win of games per model. 
+    Metric: Average score  
     '''
-    pass
+    return np.mean([FULL_RL_MODEL.simulate(max_steps=max_steps) for _ in range(sample_size)]) 
+
+def simple_eval_experiment(sample_size, probability_simulated):
+    '''
+    Generates a single observation for a simple evaluation. 
+    args:
+     - `sample_size`: number of game transitions to sample. 
+     - `probability_simulated`: how many samples are to be GAN-generated? 
+    retruns:
+     - `metric`: average score over iterated trials 
+     - `losses`: model fitting losses, for diagnostics 
+    '''
+    data = simple_sample(sample_size, probability_simulated) 
+    losses = fit(data) 
+    metric = metric_trials() 
+    return {'metric': metric, 'losses': losses} 
 
 def __sample_real_data(n):
     return random.sample(CGAN_DATA, n)
@@ -123,7 +141,8 @@ def __sample_fake_data(n):
     return fake_data
 
 if __name__ == '__main__': 
-    # TODO  
+    # TODO 
+    pass 
 
 
 

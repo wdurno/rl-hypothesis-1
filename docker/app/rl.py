@@ -6,6 +6,8 @@ import gym
 import random
 import pickle
 import numpy as np
+from IPython import display
+import matplotlib.pyplot as plt
 import tensorflow as tf
 from collections import deque
 from skimage.color import rgb2gray
@@ -174,6 +176,60 @@ class DQNAgent:
         summary_op = tf.summary.merge_all()
         return summary_placeholders, update_ops, summary_op
 
+    def simulate(self, max_steps=None, viz=None, epsilon=0.): 
+        '''
+        args: 
+        - `viz`: gameplay visualization settings 
+          - If `None`, no gameplay will be visualized. 
+          - If `jupyter`, images will be rendered for a Jupyter Server. 
+        - `epsilon`: probability of random behavior 
+        '''
+        # initialise 
+        self.epsilon = epsilon   
+        env = gym.make('BreakoutDeterministic-v4') 
+        observe, _, done, _ = env.reset() 
+        # agent as a memory of 4 steps 
+        state = pre_processing(observe) 
+        history = np.stack((state, state, state, state), axis=2) 
+        history = np.reshape([history], (1, 84, 84, 4)) 
+        if viz == 'jupyter': 
+            plt.figure(figsize=(9,9))
+            img = plt.imshow(env.render(mode='rgb_array')) # only call this once 
+        wait_steps = random.randit(1, agent.no_op_steps) # start game idle 
+        step = 0 
+        score = 0. 
+        while not done: 
+            if viz == 'jupyter': 
+                img.set_data(env.render(mode='rgb_array')) # just update the data
+                display.display(plt.gcf())
+                display.clear_output(wait=True)
+            # get action 
+            if step < wait_steps:
+                # early action is idle 
+                action = 1
+            else:
+                action = self.get_action(history) 
+            if action == 0:
+                action = 1
+            elif action == 1:
+                action = 2
+            else:
+                action = 3
+            # increment 
+            observe, reward, done, info = env.step(action)
+            step += 1 
+            # rewards are clipped 
+            reward = np.clip(reward, -1., 1.) 
+            score += reward 
+            # update agent memory  
+            next_state = pre_processing(observe)
+            next_state = np.reshape([next_state], (1, 84, 84, 1))
+            history = np.append(next_state, history[:, :, :, :3], axis=3) 
+            # is done? 
+            if max_steps is not None:
+                if step > max_steps:
+                    done = True
+        return score 
 
 # 210*160*3(color) --> 84*84(mono)
 # float --> integer (to reduce the size of replay memory)
