@@ -130,12 +130,18 @@ def transfer_sample(n=10000, model=rl_1_dense):
         sample = data
     return list(map(_transfer_transform_rl_observation, sample))
 
-def inverse_transfer_sample():
+def inverse_transfer_sample(array, state_list):
     '''
-    Extracts q-learning data in the form of `(s_t, r_t, s_t+1, d_t)`.
-    No actions are returned because `s_t` are embeddings, encoding all action information. This won't work... 
+    Extracts q-learning data in the form of `[(s_t, a_t, r_t, s_t+1, d_t)]_t`.
+    inputs
+     - array: n x (2*512) matrix of n (s_t, s_t+1) pairs. 
+     - state_list: n ints in a list 
     '''
-    pass
+    before, after = _map_array_to_transfers(array) 
+    ard = list(map(_map_int_to_action_reward_dead, state_list)) 
+    n = len(state_list)
+    inverse_transfer_samples = list(map(lambda i: (before[i,:], ard[i][0], ard[i][1], after[i,:], ard[i][2]), range(n))) 
+    return inverse_transfer_samples 
 
 def cgan_sample(n=10000, model=rl_1_dense):
     '''

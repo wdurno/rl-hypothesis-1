@@ -20,9 +20,9 @@ EPISODES = 50000
 
 
 class DQNAgent:
-    def __init__(self, action_size):
+    def __init__(self, action_size, load_model):
         self.render = False
-        self.load_model = False
+        self.load_model = load_model
         # environment settings
         self.state_size = (84, 84, 4)
         self.action_size = action_size
@@ -91,7 +91,8 @@ class DQNAgent:
         model.add(Conv2D(64, (3, 3), strides=(1, 1), activation='relu'))
         model.add(Flatten())
         model.add(Dense(512, activation='relu'))
-        model.add(Dense(self.action_size))
+        self.last_dense = Dense(self.action_size) 
+        model.add(self.last_dense) 
         model.summary()
         return model
 
