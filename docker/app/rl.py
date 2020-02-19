@@ -187,7 +187,7 @@ class DQNAgent:
         # initialise 
         self.epsilon = epsilon   
         env = gym.make('BreakoutDeterministic-v4') 
-        observe, _, done, _ = env.reset() 
+        observe = env.reset() 
         # agent as a memory of 4 steps 
         state = pre_processing(observe) 
         history = np.stack((state, state, state, state), axis=2) 
@@ -195,9 +195,10 @@ class DQNAgent:
         if viz == 'jupyter': 
             plt.figure(figsize=(9,9))
             img = plt.imshow(env.render(mode='rgb_array')) # only call this once 
-        wait_steps = random.randit(1, agent.no_op_steps) # start game idle 
+        wait_steps = random.randint(1, self.no_op_steps) # start game idle 
         step = 0 
         score = 0. 
+        done = False 
         while not done: 
             if viz == 'jupyter': 
                 img.set_data(env.render(mode='rgb_array')) # just update the data
