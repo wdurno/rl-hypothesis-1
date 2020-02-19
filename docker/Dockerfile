@@ -1,4 +1,6 @@
-FROM jaimeps/rl-gym:latest
+#FROM jaimeps/rl-gym:latest
+# local copy 
+FROM gcr.io/gdax-dnn/rl-base@sha256:9acd3a449e9460a150379a03c43e7a59d56cd0f82d7d4a2eeb8c4965fa31de56
 
 ARG BUCKET_NAME
 ENV BUCKET_NAME=${BUCKET_NAME}

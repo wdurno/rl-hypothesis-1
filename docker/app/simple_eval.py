@@ -44,7 +44,7 @@ if not os.path.isfile(FULL_RL_MODEL_PATH):
 # load files 
 with open(CGAN_DATA_PATH, 'rb') as f: 
     CGAN_DATA = pickle.load(f)
-CGAN_MODEL = CGAN(load_model_name=CGAN_MODEL_PATH)
+CGAN_MODEL = CGAN(load_model_path=CGAN_MODEL_PATH)
 FULL_RL_MODEL = DQNAgent(action_size=3, load_model=True) 
 
 def simple_sample(sample_size, probability_simulated): 
@@ -72,7 +72,7 @@ def fit(data, n_args=3, discount=.99, n_iters=1000, verbose=True):
     '''
     ## Define model 
     model = Sequential() 
-    model.add(Relu(input_shape=512))
+    model.add(ReLU(input_shape=(512,)))
     dense = Dense(n_args) 
     model.add(dense) 
     q_scores = model.output 
@@ -86,9 +86,10 @@ def fit(data, n_args=3, discount=.99, n_iters=1000, verbose=True):
     train = K.function([model.input, action_ints, y], [loss], updates=updates) 
     ## Fit last layer of q-net on data 
     # build inputs from [(s_t, a_t, r_t, s_t+1, d_t)]_t data 
-    states = np.array([tpl[0] for tpl in data]) 
+    states = np.array([tpl[0].flatten() for tpl in data]) 
+    states = np.reshape(states, (-1, 512)) 
     action_ints = np.array([tpl[1] for tpl in data]) 
-    y = np.array([tpl[2] + (1-int(tpl[4]) * discount * np.amax(tpl[3]))]) 
+    y = np.array([tpl[2] + (1-int(tpl[4]) * discount * np.amax(tpl[3])) for tpl in data]) 
     losses = [] 
     for _ in range(n_iters): 
         # iterate 
@@ -124,7 +125,10 @@ def simple_eval_experiment(sample_size, probability_simulated):
     return {'metric': metric, 'losses': losses} 
 
 def __sample_real_data(n):
-    return random.sample(CGAN_DATA, n)
+    idx = random.sample(range(CGAN_DATA[1].shape[0]), n) 
+    states = CGAN_DATA[0][idx,:] 
+    labels = CGAN_DATA[1][idx] 
+    return inverse_transfer_sample(states, list(labels)) 
 
 def __sample_fake_data(n):
     '''
