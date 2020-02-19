@@ -119,9 +119,9 @@ def simple_eval_experiment(sample_size, probability_simulated):
      - `metric`: average score over iterated trials 
      - `losses`: model fitting losses, for diagnostics 
     '''
-    data = simple_sample(sample_size, probability_simulated) 
+    data = simple_sample(sample_size, probability_simulated, metric_sample_size=1000, metric_max_steps=10000) 
     losses = fit(data) 
-    metric = metric_trials() 
+    metric = metric_trials(metric_sample_size, metric_max_steps) 
     return {'metric': metric, 'losses': losses} 
 
 def __sample_real_data(n):
@@ -146,9 +146,15 @@ def __sample_fake_data(n):
 
 if __name__ == '__main__':
     from time import sleep 
-    while True: 
-        sleep(100) # debugging... 
-    # TODO 
+    while True:
+        # This is for debugging. 
+        # Don't deploy to a single node for actual work. 
+        # It takes too long. 
+        # Executing `simple_eval_experiment` with 1000 
+        # samples is projected to take 3.6 hours (13s each). 
+        # Many experiments need to be run. 
+        # Parallelize instead. 
+        sleep(100)  
     pass 
 
 
