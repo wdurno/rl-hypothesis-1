@@ -3,6 +3,15 @@ from google.oauth2 import service_account
 from googleapiclient import discovery
 import os 
 
+# Instance info abstracted-away on Kubernetes. 
+def assign_default(var, default='NOT_DEFINED'):
+    if var not in os.environ:
+        os.environ[var] = default 
+    pass
+assign_default('ZONE') 
+assign_default('PROJECT') 
+assign_default('INSTANCE') 
+
 def download_blob(source_blob_name, destination_file_name, bucket_name=os.environ['BUCKET_NAME']):
     """Downloads a blob from the bucket."""
     # bucket_name = "your-bucket-name"

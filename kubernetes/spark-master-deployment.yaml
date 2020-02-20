@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: spark-master
-          image: HELM_DOCKER_IMAGE 
+          image: $RL_HYPOTHESIS_1_DOCKER_IMAGE 
           command: ["/app/spark/spark-master"]
           ports:
             - containerPort: 7077

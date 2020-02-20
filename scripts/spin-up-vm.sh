@@ -11,7 +11,7 @@ gcloud beta compute --project=${RL_HYPOTHESIS_1_PROJECT} instances create-with-c
 	--image-project=cos-cloud \
 	--boot-disk-size=300GB \
 	--boot-disk-type=pd-standard \
-	--boot-disk-device-name=${RL_HYPOTHESIS_1_INSTNACE} \
+	--boot-disk-device-name=${RL_HYPOTHESIS_1_INSTANCE} \
 	--container-image=${RL_HYPOTHESIS_1_DOCKER_IMAGE} \
        	--container-restart-policy=always \
 	--labels=container-vm=cos-stable-79-12607-80-0 \
