@@ -17,9 +17,16 @@ spec:
           image: $RL_HYPOTHESIS_1_DOCKER_IMAGE 
           env:
             - name: JOB
-              value: "5-wo"
+              value: "0-de"
           ports:
             - containerPort: 8081
           resources:
             requests:
-              cpu: 1500m
+              cpu: "3500m"
+              memory: "20Gi"
+          volumeMounts:
+          - mountPath: /dat
+            name: dat-volume
+      volumes:
+      - name: dat-volume
+        emptyDir: {} 

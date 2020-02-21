@@ -26,11 +26,11 @@ import random
 import numpy as np 
 
 ## constants 
-CGAN_DATA_PATH='/app/cgan-data.pkl'
+CGAN_DATA_PATH='/dat/cgan-data.pkl'
 CGAN_DATA_BLOB_NAME='cgan-data.pkl'
-CGAN_MODEL_PATH='/app/cgan-model.h5'
+CGAN_MODEL_PATH='/dat/cgan-model.h5'
 CGAN_MODEL_BLOB_NAME='cgan-model.h5'
-FULL_RL_MODEL_PATH='/app/breakout_dqn.h5'  
+FULL_RL_MODEL_PATH='/dat/breakout_dqn.h5'  
 FULL_RL_MODEL_BLOB_NAME='rl-full.h5'
 
 # ensure files are downloaded 
@@ -109,7 +109,7 @@ def metric_trials(sample_size = 1000, max_steps=10000):
     '''
     return np.mean([FULL_RL_MODEL.simulate(max_steps=max_steps) for _ in range(sample_size)]) 
 
-def simple_eval_experiment(sample_size, probability_simulated):
+def simple_eval_experiment(sample_size, probability_simulated, metric_sample_size=1000, metric_max_steps=10000):
     '''
     Generates a single observation for a simple evaluation. 
     args:
@@ -119,7 +119,7 @@ def simple_eval_experiment(sample_size, probability_simulated):
      - `metric`: average score over iterated trials 
      - `losses`: model fitting losses, for diagnostics 
     '''
-    data = simple_sample(sample_size, probability_simulated, metric_sample_size=1000, metric_max_steps=10000) 
+    data = simple_sample(sample_size, probability_simulated) 
     losses = fit(data) 
     metric = metric_trials(metric_sample_size, metric_max_steps) 
     return {'metric': metric, 'losses': losses} 

@@ -9,9 +9,9 @@ from keras.layers import Dense, Flatten
 from keras.layers.convolutional import Conv2D
 from keras.layers.advanced_activations import ReLU
 
-model_path = '/app/transfer-model.h5' 
-data_path = '/app/data.pkl'
-cgan_data_path = '/app/cgan-data.pkl'
+model_path = '/dat/transfer-model.h5' 
+data_path = '/dat/data.pkl'
+cgan_data_path = '/dat/cgan-data.pkl'
 
 # download model only if needed 
 if not os.path.isfile(model_path): 

@@ -21,12 +21,12 @@ import pickle
 from time import sleep 
 
 ## constants 
-cgan_data_path = '/app/cgan-data.pkl'
-cgan_statistics_path = '/app/cgan-statistics.pkl'
+cgan_data_path = '/dat/cgan-data.pkl'
+cgan_statistics_path = '/dat/cgan-statistics.pkl'
 cgan_statistics_name = 'cgan-statistics.pkl'
-cgan_model_path = '/app/cgan-model.h5'
+cgan_model_path = '/dat/cgan-model.h5'
 cgan_model_name = 'cgan-model.h5'
-cgan_discr_path = '/app/cgan-discr-model.h5' 
+cgan_discr_path = '/dat/cgan-discr-model.h5' 
 cgan_discr_name = 'cgan-discr-model.h5' 
 
 if not os.path.isfile(cgan_data_path): 

@@ -1,4 +1,11 @@
 
+# directory may already exist as K8s volume mount 
+mkdir -p /dat
+
+if [ $JOB == "0-de" ]; then
+        while true; echo sleeping; sleep 100; done 
+fi
+
 if [ $JOB == "1-rl" ]; then
 	cd /app
 	exec python3 rl.py
@@ -26,7 +33,8 @@ fi
 
 if [ $JOB == "5-wo" ]; then
         cd /app
-        exec python3 -c "import simple_eval" # downloads models 
+	## eats too much RAM 
+        #exec python3 -c "import simple_eval" # downloads models 
 	exec spark/spark-worker  
 fi
 
