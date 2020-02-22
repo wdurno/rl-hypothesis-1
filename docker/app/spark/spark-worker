@@ -11,6 +11,6 @@ fi
 
 
 
-memory = '10g'
+memory = '19g'
 pyspark_submit_args = ' --driver-memory ' + memory + ' pyspark-shell'
 os.environ["PYSPARK_SUBMIT_ARGS"] = pyspark_submit_args

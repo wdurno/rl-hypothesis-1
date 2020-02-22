@@ -9,11 +9,8 @@ ENV SPARK_VERSION 2.2.1
 ENV PYSPARK_PYTHON python3
 ENV PYTHONPATH /app
 
-ADD app /app
-
 # ml dependencies 
-RUN chmod 777 /app/entrypoint.sh && \
-pip install scikit-image && \
+RUN pip install scikit-image && \
 pip install keras==2.2.5 && \
 pip install google-cloud-storage && \
 pip install google-api-python-client && \
@@ -36,8 +33,12 @@ curl http://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_V
 ln -s spark-${SPARK_VERSION}-bin-hadoop2.7 spark && \
 echo Spark ${SPARK_VERSION} installed in /opt
 
+## TODO move above to base image. It's slow to build and relatively static. 
+
+ADD app /app
 ADD /app/spark/spark-defaults.conf /opt/spark/conf/spark-defaults.conf
 ENV PATH $PATH:/opt/spark/bin 
+RUN chmod 777 /app/entrypoint.sh 
 
 WORKDIR /app
 

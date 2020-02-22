@@ -3,7 +3,7 @@ apiVersion: extensions/v1beta1
 metadata:
   name: spark-worker
 spec:
-  replicas: 5 
+  replicas: 2 
   selector:
     matchLabels:
       component: spark-worker
@@ -17,12 +17,15 @@ spec:
           image: $RL_HYPOTHESIS_1_DOCKER_IMAGE 
           env:
             - name: JOB
-              value: "0-de"
+              value: "5-wo"
           ports:
             - containerPort: 8081
           resources:
             requests:
               cpu: "3500m"
+              memory: "18Gi"
+            limits:
+              cpu: "3900m"
               memory: "20Gi"
           volumeMounts:
           - mountPath: /dat

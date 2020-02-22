@@ -8,4 +8,5 @@ source config.sh
 scripts/spin-up-cluster.sh 
 # apply envs and deploy 
 cat kubernetes/spark-master-deployment.yaml | envsubst | kubectl apply -f - 
+cat kubernetes/spark-master-service.yaml | envsubst | kubectl apply -f -
 cat kubernetes/spark-worker-deployment.yaml | envsubst | kubectl apply -f -

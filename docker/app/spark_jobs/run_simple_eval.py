@@ -21,6 +21,6 @@ test_args = spark.createDataFrame(
             StringType() 
         )
 
-def distribute_simple_experiment(args=test_args):
-    return args.select(my_udf('value')).show() 
+def distributed_simple_experiment(args=test_args):
+    return args.select(run_simple_eval_experiment('value')).show() 
 

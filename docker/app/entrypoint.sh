@@ -3,7 +3,7 @@
 mkdir -p /dat
 
 if [ $JOB == "0-de" ]; then
-        while true; echo sleeping; sleep 100; done 
+        while true; do echo sleeping; sleep 100; done;  
 fi
 
 if [ $JOB == "1-rl" ]; then
@@ -28,13 +28,12 @@ fi
 
 if [ $JOB == "5-ma" ]; then
         cd /app
-        exec spark/spark-master 
+        spark/spark-master 
 fi
 
 if [ $JOB == "5-wo" ]; then
         cd /app
-	## eats too much RAM 
-        #exec python3 -c "import simple_eval" # downloads models 
-	exec spark/spark-worker  
+        python3 get_models.py 
+	spark/spark-worker 
 fi
 
