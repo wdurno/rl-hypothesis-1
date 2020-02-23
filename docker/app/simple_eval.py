@@ -68,7 +68,7 @@ def simple_sample(sample_size, probability_simulated):
     fake_data = list(fake_data) 
     return real_data + fake_data 
 
-def fit(data, n_args=3, discount=.99, n_iters=1000, verbose=False):
+def fit(data, n_args=3, discount=.99, n_iters=10000, verbose=False):
     '''
     Fits a transfer-learned model on embedded data. Once fit, the 
     abstract model is combined with its lower parts (ie. convolutions) 
