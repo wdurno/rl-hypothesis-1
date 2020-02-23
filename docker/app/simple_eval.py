@@ -99,7 +99,7 @@ def fit(data, n_args=3, discount=.99, n_iters=1000, verbose=True):
             print('loss: '+str(l[0])) 
     ## Combine with lower transfer-learned layers
     weights = dense.get_weights() 
-    FULL_RL_MODEL.last_dense.set_weights(weights) 
+    FULL_RL_MODEL.model.layers[-1].set_weights(weights) 
     ## Model returned as side-effect. Return loss statistics 
     return losses 
 
@@ -154,6 +154,7 @@ if __name__ == '__main__':
         # samples is projected to take 3.6 hours (13s each). 
         # Many experiments need to be run. 
         # Parallelize instead. 
+        print('Debug mode. Sleeping...') 
         sleep(100)  
     pass 
 
