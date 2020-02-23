@@ -12,6 +12,9 @@ spec:
       labels:
         component: spark-worker
     spec:
+      nodeSelector:
+        #<labelname>:value
+        cloud.google.com/gke-nodepool: spark-worker
       containers:
         - name: spark-worker
           image: $RL_HYPOTHESIS_1_DOCKER_IMAGE 
@@ -22,11 +25,11 @@ spec:
             - containerPort: 8081
           resources:
             requests:
-              cpu: "3500m"
-              memory: "18Gi"
+              cpu: "3200m"
+              memory: "17Gi"
             limits:
-              cpu: "3900m"
-              memory: "20Gi"
+              cpu: "3700m"
+              memory: "18Gi"
           volumeMounts:
           - mountPath: /dat
             name: dat-volume

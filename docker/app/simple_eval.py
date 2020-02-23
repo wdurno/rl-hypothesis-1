@@ -56,15 +56,19 @@ def simple_sample(sample_size, probability_simulated):
     n_fake = np.random.binomial(sample_size, probability_simulated) 
     n_real = sample_size - n_fake 
     ## sample real data 
-    real_data = __sample_real_data(n_real) 
+    real_data = [] 
+    if n_real > 0:
+        real_data = __sample_real_data(n_real) 
     ## sample fake data 
-    fake_data = __sample_fake_data(n_fake) 
+    fake_data = [] 
+    if n_fake > 0: 
+        fake_data = __sample_fake_data(n_fake) 
     ## merge and return 
     real_data = list(real_data)
     fake_data = list(fake_data) 
     return real_data + fake_data 
 
-def fit(data, n_args=3, discount=.99, n_iters=1000, verbose=True):
+def fit(data, n_args=3, discount=.99, n_iters=1000, verbose=False):
     '''
     Fits a transfer-learned model on embedded data. Once fit, the 
     abstract model is combined with its lower parts (ie. convolutions) 

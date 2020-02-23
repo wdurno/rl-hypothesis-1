@@ -1,4 +1,6 @@
 import json 
+from pyspark import SparkContext
+sc = SparkContext()
 
 def run_simple_eval_experiment(kwargs_json_iterable):
     from simple_eval import simple_eval_experiment # RAM and disk heavy 

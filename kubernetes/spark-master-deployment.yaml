@@ -12,6 +12,9 @@ spec:
       labels:
         component: spark-master
     spec:
+      nodeSelector:
+        #<labelname>:value
+        cloud.google.com/gke-nodepool: default-pool
       containers:
         - name: spark-master
           image: $RL_HYPOTHESIS_1_DOCKER_IMAGE 

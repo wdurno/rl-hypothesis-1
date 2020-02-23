@@ -33,7 +33,7 @@ fi
 
 if [ $JOB == "5-wo" ]; then
         cd /app
-        python3 get_models.py 
+        #python3 get_models.py 
 	spark/spark-worker 
 fi
 

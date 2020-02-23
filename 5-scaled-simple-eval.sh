@@ -4,7 +4,7 @@ echo JOB_ID: ${RL_HYPOTHESIS_1_JOB_ID}
 export RL_HYPOTHESIS_1_JOB=5-k8
 export RL_HYPOTHESIS_1_INSTANCE=x${RL_HYPOTHESIS_1_JOB}-${RL_HYPOTHESIS_1_JOB_ID}
 source config.sh 
-# TODO login to kubernetes
+# spin-up cluster 
 scripts/spin-up-cluster.sh 
 # apply envs and deploy 
 cat kubernetes/spark-master-deployment.yaml | envsubst | kubectl apply -f - 
