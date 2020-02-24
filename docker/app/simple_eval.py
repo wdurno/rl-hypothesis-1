@@ -117,7 +117,7 @@ def metric_trials(sample_size = 1000, max_steps=10000):
     for i in range(sample_size): 
         simulant = FULL_RL_MODEL.simulate(max_steps=max_steps) 
         simulations.append(simulant) 
-        progress = str(100.*float(i+1)/float(sample_size))+'% complete in '+str(time()-t0)+' seconds' 
+        progress = str(100.*float(i+1)/float(sample_size))+'% complete in '+str(time()-t0)+' seconds\n' 
         # useful for spark-managed jobs 
         with open('/dat/progress.txt', 'a') as f: 
             f.write(progress) 

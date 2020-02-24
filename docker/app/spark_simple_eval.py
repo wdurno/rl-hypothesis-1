@@ -9,7 +9,7 @@ import os
 
 # constants 
 N_WORKERS = os.environ['N_WORKERS'] 
-RESULT_PATH = '/dat/experimental-result.pkl'
+RESULT_PATH = 'experimental-result.pkl'
 RESULT_BLOB_NAME = 'experimental-result.pkl' 
 
 def run_simple_eval_experiment(kwargs_json_iterable):
@@ -46,11 +46,12 @@ def distributed_simple_experiment(args=test_args):
 results = distributed_simple_experiment(test_args)
 
 # save results 
-output = list(zip(test_args, results)) 
+output = list(zip(test_args.collect(), results)) 
 with open(RESULT_PATH, 'wb') as f:
     pickle.dump(output, f)
 upload_blob(RESULT_PATH, RESULT_BLOB_NAME) 
 
 while True:
+    # TODO shutdown cluster 
     print('job done') 
     sleep(100) 

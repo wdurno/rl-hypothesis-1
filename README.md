@@ -1,5 +1,5 @@
 # rl-hypothesis-1
-Can sparse state spaces be gainfully populated with GANs when represented as embeddings?
+Can we gainfully pad reinforcement learning (RL) datasets with generative adversarial nets (GANs)? If so, RL would be able to leave the realm of video games and drive physical-world automata.
 
 - Essential ideas
   - RL is stuck in simulated worlds until it can avoid entire-game simulation. 
@@ -11,7 +11,7 @@ Can sparse state spaces be gainfully populated with GANs when represented as emb
     - The q-embedding should be easier to simulate, having only retained game-strategic info and no visual processing info. 
   - When finished, the final q-net is the original but updated post-cut. 
 
-- Hypothesis
+- Testable hypothesis
   - When game samples are constrained, the GAN will provide lift in total game wins. 
 
 ## Resources 
@@ -31,7 +31,7 @@ I've tested the q-net and gan software. It's good stuff. The q-net really needs 
 
 - Build environment: GCP console. 
 - Configure with `config.sh` 
-  - Service account must have read/write to cloud storage via `gsutil` and ability to shutdown VMs.  
+  - Service account required.  
 - Execute build with `bash build.sh` 
 
 ## Execution 
@@ -42,9 +42,15 @@ I've tested the q-net and gan software. It's good stuff. The q-net really needs 
   - Run `bash 2-transform.sh`
 - Fit GAN 
   - Run `bash 3-fit-gan.sh`
-- Generate samples 
-- Fit q-net with generated samples 
-- Evaluate 
+- Simple evaluation 
+  - Run `bash 4-scaled-simple-eval.sh`
+  - Launches Spark on Kubernetes cluster 
+  - Needs automation: you'll need to ssh into master to execute 
+  - Generates samples from GAN
+  - Fits a transfer-learned q-net 
+  - Returns game play performance statistics
 
 ## Results 
+
+This experiment is currently inconclusive. Computationally, everything works. However, the *transfer-learned q-nets* of stage 4 aren't fitting well, even when sampling real data (no GAN). 
 
