@@ -30,14 +30,14 @@ example_args = [
     json.dumps({'sample_size': 10000, 'probability_simulated': .9, 'metric_sample_size': 1})  
 ]
 
-def study_probability_axis(probability_simulated=[.1,.5,.9], sample_size=10000, metric_sample_size=1000):
+def study_probability_axis(probability_simulated=[.1,.5,.9], sample_size=10000, metric_sample_size=10):
     args = []
     for p in probability_simulated:
         args.append(json.dumps({'sample_size': sample_size, 'probability_simulated': p, 'metric_sample_size': metric_sample_size}))
     return args
 
 test_args = study_probability_axis(probability_simulated=[.0, .1, .2, .3, .4, .5, .6, .7, .8 , .9, 1.]) 
-test_args = sc.parallelize(test_args, N_WORKERS) 
+test_args = sc.parallelize(test_args, 11) 
 
 def distributed_simple_experiment(args=test_args):
     return args.mapPartitions(run_simple_eval_experiment).collect()  

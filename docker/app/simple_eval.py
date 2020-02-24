@@ -24,6 +24,7 @@ import gym
 import pickle
 import random 
 import numpy as np 
+from time import time 
 
 ## constants 
 CGAN_DATA_PATH='/dat/cgan-data.pkl'
@@ -111,7 +112,16 @@ def metric_trials(sample_size = 1000, max_steps=10000):
     '''
     Metric: Average score  
     '''
-    return np.mean([FULL_RL_MODEL.simulate(max_steps=max_steps) for _ in range(sample_size)]) 
+    t0 = time() 
+    simulations = [] 
+    for i in range(sample_size): 
+        simulant = FULL_RL_MODEL.simulate(max_steps=max_steps) 
+        simulations.append(simulant) 
+        progress = str(100.*float(i+1)/float(sample_size))+'% complete in '+str(time()-t0)+' seconds' 
+        # useful for spark-managed jobs 
+        with open('/dat/progress.txt', 'a') as f: 
+            f.write(progress) 
+    return np.mean(simulations) 
 
 def simple_eval_experiment(sample_size, probability_simulated, metric_sample_size=1000, metric_max_steps=10000):
     '''
