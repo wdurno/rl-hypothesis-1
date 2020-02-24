@@ -114,8 +114,8 @@ def _map_transfers_to_array(transfer_transformed_rl_observation):
 
 def _map_array_to_transfers(transfer_array, split_point=512): 
     "returns state, next_state"
-    before = transfer_array[:, split_point:] 
-    diff = transfer_array[:, :split_point]
+    before = transfer_array[:, :split_point] 
+    diff = transfer_array[:, split_point:]
     after = before + diff
     return before, after 
 
