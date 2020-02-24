@@ -22,6 +22,9 @@ spec:
           ports:
             - containerPort: 7077
             - containerPort: 8080
+          env:
+            - name: N_WORKERS
+              value: "$RL_HYPOTHESIS_1_N_WORKERS" 
           resources:
             requests:
               cpu: "100m"

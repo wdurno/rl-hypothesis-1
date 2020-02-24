@@ -28,7 +28,8 @@ fi
 
 if [ $JOB == "5-ma" ]; then
         cd /app
-        spark/spark-master 
+	# run master as daemon 
+        spark/spark-master
 fi
 
 if [ $JOB == "5-wo" ]; then
