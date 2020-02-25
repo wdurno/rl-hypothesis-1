@@ -69,7 +69,7 @@ def simple_sample(sample_size, probability_simulated):
     fake_data = list(fake_data) 
     return real_data + fake_data 
 
-def fit(data, n_args=3, discount=.99, n_iters=10000, verbose=False):
+def fit(data, n_args=3, discount=.99, n_iters=10000, verbose=False, mini_batch=100):
     '''
     Fits a transfer-learned model on embedded data. Once fit, the 
     abstract model is combined with its lower parts (ie. convolutions) 
@@ -93,12 +93,18 @@ def fit(data, n_args=3, discount=.99, n_iters=10000, verbose=False):
     # build inputs from [(s_t, a_t, r_t, s_t+1, d_t)]_t data 
     states = np.array([tpl[0].flatten() for tpl in data]) 
     states = np.reshape(states, (-1, 512)) 
-    action_ints = np.array([tpl[1] for tpl in data]) 
-    y = np.array([tpl[2] + (1-int(tpl[4]) * discount * np.amax(tpl[3])) for tpl in data]) 
+    next_states = np.array([tpl[3].flatten() for tpl in data])
+    next_states = np.reshape(next_states, (-1, 512))
+    action_ints = np.array([tpl[1] for tpl in data])
+    rewards = np.array([tpl[2] for tpl in data])
+    dones = np.array([int(tpl[4]) for tpl in data])
+    y = np.array([tpl[2] + (1-int(tpl[4]) * discount * np.amax(tpl[3])) for tpl in data]) #TODO np.amax must run on prediction. Should be in loop below.  
     losses = [] 
     for _ in range(n_iters): 
         # iterate 
-        l = train([states, action_ints, y]) 
+        idx = random.sample(range(states.shape[0]), mini_batch)
+        y = rewards[idx] + (1-dones[idx]) * discount * np.amax(model.predict(next_states[idx,:]), axis=1) 
+        l = train([states[idx,:], action_ints[idx], y]) 
         losses.append(l[0]) 
         if verbose:
             print('loss: '+str(l[0])) 
