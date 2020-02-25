@@ -49,6 +49,7 @@ results = distributed_simple_experiment(test_args)
 output = list(zip(test_args.collect(), results)) 
 with open(RESULT_PATH, 'wb') as f:
     pickle.dump(output, f)
+
 upload_blob(RESULT_PATH, RESULT_BLOB_NAME) 
 
 while True:

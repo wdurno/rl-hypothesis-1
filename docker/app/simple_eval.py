@@ -98,7 +98,6 @@ def fit(data, n_args=3, discount=.99, n_iters=10000, verbose=False, mini_batch=1
     action_ints = np.array([tpl[1] for tpl in data])
     rewards = np.array([tpl[2] for tpl in data])
     dones = np.array([int(tpl[4]) for tpl in data])
-    y = np.array([tpl[2] + (1-int(tpl[4]) * discount * np.amax(tpl[3])) for tpl in data]) #TODO np.amax must run on prediction. Should be in loop below.  
     losses = [] 
     for _ in range(n_iters): 
         # iterate 
