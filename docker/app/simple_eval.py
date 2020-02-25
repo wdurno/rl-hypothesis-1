@@ -69,7 +69,7 @@ def simple_sample(sample_size, probability_simulated):
     fake_data = list(fake_data) 
     return real_data + fake_data 
 
-def fit(data, n_args=3, discount=.99, n_iters=10000, verbose=False, mini_batch=100):
+def fit(data, n_args=3, discount=.95, n_iters=10000, verbose=False, mini_batch=100):
     '''
     Fits a transfer-learned model on embedded data. Once fit, the 
     abstract model is combined with its lower parts (ie. convolutions) 
@@ -99,6 +99,7 @@ def fit(data, n_args=3, discount=.99, n_iters=10000, verbose=False, mini_batch=1
     rewards = np.array([tpl[2] for tpl in data])
     dones = np.array([int(tpl[4]) for tpl in data])
     losses = [] 
+    stat_idx = random.sample(range(states.shape[0]), min(10, mini_batch))
     for _ in range(n_iters): 
         # iterate 
         idx = random.sample(range(states.shape[0]), mini_batch)
@@ -106,12 +107,12 @@ def fit(data, n_args=3, discount=.99, n_iters=10000, verbose=False, mini_batch=1
         l = train([states[idx,:], action_ints[idx], y]) 
         losses.append(l[0]) 
         if verbose:
-            print('loss: '+str(l[0])) 
+            mean_q = np.mean(model.predict(states[stat_idx,:])) 
+            print('mean q: '+str(mean_q)) 
     ## Combine with lower transfer-learned layers
     weights = dense.get_weights() 
     FULL_RL_MODEL.model.layers[-1].set_weights(weights) 
-    ## Model returned as side-effect. Return loss statistics 
-    return losses 
+    return model  
 
 def metric_trials(sample_size = 1000, max_steps=10000): 
     '''
@@ -139,9 +140,9 @@ def simple_eval_experiment(sample_size, probability_simulated, metric_sample_siz
      - `losses`: model fitting losses, for diagnostics 
     '''
     data = simple_sample(sample_size, probability_simulated) 
-    losses = fit(data) 
+    _ = fit(data) 
     metric = metric_trials(metric_sample_size, metric_max_steps) 
-    return {'metric': metric, 'losses': losses} 
+    return {'metric': metric} #, 'losses': losses} 
 
 def __sample_real_data(n):
     idx = random.sample(range(CGAN_DATA[1].shape[0]), n) 

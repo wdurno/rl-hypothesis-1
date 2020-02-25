@@ -17,7 +17,7 @@ def run_simple_eval_experiment(kwargs_json_iterable):
     metrics = [] 
     for kwargs_json in kwargs_json_iterable: 
         kwargs = json.loads(kwargs_json) 
-        metric = simple_eval_experiment(**kwargs)['metric'] # compute heavy 
+        metric = simple_eval_experiment(**kwargs) # compute heavy 
         metrics.append(metric) 
     return iter(metrics) 
 
