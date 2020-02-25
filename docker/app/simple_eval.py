@@ -142,7 +142,7 @@ def simple_eval_experiment(sample_size, probability_simulated, metric_sample_siz
     data = simple_sample(sample_size, probability_simulated) 
     _ = fit(data) 
     metric = metric_trials(metric_sample_size, metric_max_steps) 
-    return {'metric': metric} #, 'losses': losses} 
+    return metric 
 
 def __sample_real_data(n):
     idx = random.sample(range(CGAN_DATA[1].shape[0]), n) 
