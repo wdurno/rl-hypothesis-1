@@ -51,7 +51,9 @@ def _transfer_transform_rl_observation(rl_observation, model=rl_1_dense):
     Applies a transfer sampling transform. 
     '''
     # state, action, reward, next_state, dead
-    rl_observation = list(rl_observation) 
+    rl_observation = list(rl_observation)
+    rl_observation[0] = rl_observation[0]/255. # rescale in-place  
+    rl_observation[3] = rl_observation[3]/255. 
     rl_observation[0] = model.predict(rl_observation[0]) # state 
     rl_observation[3] = model.predict(rl_observation[3]) # next_state 
     return rl_observation 
