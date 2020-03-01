@@ -21,23 +21,27 @@ def run_simple_eval_experiment(kwargs_json_iterable):
         metrics.append(metric) 
     return iter(metrics) 
 
-example_args = [
-    json.dumps({'sample_size': 10000, 'probability_simulated': .1, 'metric_sample_size': 1}), 
-    json.dumps({'sample_size': 10000, 'probability_simulated': .2, 'metric_sample_size': 1}),
-    json.dumps({'sample_size': 10000, 'probability_simulated': .3, 'metric_sample_size': 1}),
-    json.dumps({'sample_size': 10000, 'probability_simulated': .4, 'metric_sample_size': 1}),
-    json.dumps({'sample_size': 10000, 'probability_simulated': .7, 'metric_sample_size': 1}),
-    json.dumps({'sample_size': 10000, 'probability_simulated': .9, 'metric_sample_size': 1})  
-]
-
-def study_probability_axis(probability_simulated=[.1,.5,.9], sample_size=10000, metric_sample_size=1):
+def study_probability_axis(n_real_fake=[(1000, 1000), (1000, 2000)], metric_sample_size=100):
     args = []
-    for p in probability_simulated:
-        args.append(json.dumps({'sample_size': sample_size, 'probability_simulated': p, 'metric_sample_size': metric_sample_size}))
+    for rf_pair in n_real_fake:
+        for _ in range(metric_sample_size): 
+            args.append(json.dumps({'n_real': rf_pair[0], 'n_fake': rf_pair[1], 'metric_sample_size': 1})) 
     return args
 
-test_args = study_probability_axis(probability_simulated=[.0, .1, .2, .3, .4, .5, .6, .7, .8 , .9, 1.]*2) 
-test_args = sc.parallelize(test_args, 11) 
+test_args = study_probability_axis(n_real_fake=[
+                (1000, 0), 
+                (1000, 1000),
+                (1000, 10000), 
+                (1000, 300000), 
+                (100000, 0), 
+                (100000, 1000), 
+                (100000, 10000), 
+                (100000, 100000), 
+                (100000, 300000),
+                (100000, 600000) 
+            ]
+        ) 
+test_args = sc.parallelize(test_args, len(test_args)) 
 
 def distributed_simple_experiment(args=test_args):
     return args.mapPartitions(run_simple_eval_experiment).collect()  

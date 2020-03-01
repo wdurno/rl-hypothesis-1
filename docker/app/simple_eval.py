@@ -48,14 +48,12 @@ with open(CGAN_DATA_PATH, 'rb') as f:
 CGAN_MODEL = CGAN(load_model_path=CGAN_MODEL_PATH)
 FULL_RL_MODEL = DQNAgent(action_size=3, load_model=True) 
 
-def simple_sample(sample_size, probability_simulated): 
+def simple_sample(n_real, n_fake): 
     '''
     Generates a mixed dataset of simulated and real embedded samples. 
     Samples are "embedded" because we've used transfer learning. 
     Sampling is "simple" because the GAN is not fit with each simple. 
     '''
-    n_fake = np.random.binomial(sample_size, probability_simulated) 
-    n_real = sample_size - n_fake 
     ## sample real data 
     real_data = [] 
     if n_real > 0:
@@ -129,7 +127,7 @@ def metric_trials(sample_size = 1000, max_steps=10000):
             f.write(progress) 
     return np.mean(simulations) 
 
-def simple_eval_experiment(sample_size, probability_simulated, metric_sample_size=1000, metric_max_steps=10000):
+def simple_eval_experiment(n_real=1000, n_fake=1000, metric_sample_size=1000, metric_max_steps=10000):
     '''
     Generates a single observation for a simple evaluation. 
     args:
@@ -139,7 +137,7 @@ def simple_eval_experiment(sample_size, probability_simulated, metric_sample_siz
      - `metric`: average score over iterated trials 
      - `losses`: model fitting losses, for diagnostics 
     '''
-    data = simple_sample(sample_size, probability_simulated) 
+    data = simple_sample(n_real, n_fake) 
     _ = fit(data) 
     metric = metric_trials(metric_sample_size, metric_max_steps) 
     return metric 
