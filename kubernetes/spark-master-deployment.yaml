@@ -25,6 +25,12 @@ spec:
           env:
             - name: N_WORKERS
               value: "$RL_HYPOTHESIS_1_N_WORKERS" 
+            - name: PROJECT 
+              value: "$RL_HYPOTHESIS_1_PROJECT"
+            - name: ZONE
+              value: "$RL_HYPOTHESIS_1_ZONE"
+            - name: INSTANCE
+              value: "$RL_HYPOTHESIS_1_INSTANCE"
           resources:
             requests:
               cpu: "100m"

@@ -52,3 +52,10 @@ def shutdown(zone=os.environ['ZONE'], project=os.environ['PROJECT'], instance=os
     response = request.execute()
     pass
 
+def delete_cluster(zone=os.environ['ZONE'], project=os.environ['PROJECT'], cluster=os.environ['INSTANCE']): 
+    credentials = service_account.Credentials.from_service_account_file('/app/service-account.json') 
+    service = discovery.build('container', 'v1', credentials=credentials) 
+    request = service.projects().zones().clusters().delete(projectId=project, zone=zone, clusterId=cluster) 
+    print('Deleting cluster...') 
+    response = request.execute() 
+    pass 

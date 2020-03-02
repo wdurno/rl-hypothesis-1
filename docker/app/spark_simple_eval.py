@@ -1,7 +1,7 @@
 from pyspark import SparkContext
 sc = SparkContext()
 
-from gcp_api_wrapper import upload_blob 
+from gcp_api_wrapper import upload_blob, delete_cluster  
 from time import sleep 
 import pickle 
 import json 
@@ -57,6 +57,6 @@ with open(RESULT_PATH, 'wb') as f:
 upload_blob(RESULT_PATH, RESULT_BLOB_NAME) 
 
 while True:
-    # TODO shutdown cluster 
-    print('job done') 
+    print('job done, shutting down cluster...') 
+    delete_cluster() 
     sleep(100) 
