@@ -1,4 +1,7 @@
 
+# enable detach with "&" 
+set -m 
+
 # directory may already exist as K8s volume mount 
 mkdir -p /dat
 
@@ -28,13 +31,17 @@ fi
 
 if [ $JOB == "5-ma" ]; then
         cd /app
-	# run master as daemon 
-        spark/spark-master
+	# run master in background 
+        spark/spark-master &
+	# give master service time to start 
+	sleep 3
+       	# start job 
+	spark-submit spark_simple_eval.py
 fi
 
 if [ $JOB == "5-wo" ]; then
         cd /app
-        #python3 get_models.py 
+        python3 get_models.py 
 	spark/spark-worker 
 fi
 
