@@ -7,10 +7,10 @@ if ! getent hosts spark-master; then
   exit 0
 fi
 
-/opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077 --webui-port 8081 --cores 1
+/opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077 --webui-port 8081 --cores 1 --memory 8G
 
 
 
-memory = '3g'
+memory = '8g'
 pyspark_submit_args = ' --driver-memory ' + memory + ' pyspark-shell'
 os.environ["PYSPARK_SUBMIT_ARGS"] = pyspark_submit_args

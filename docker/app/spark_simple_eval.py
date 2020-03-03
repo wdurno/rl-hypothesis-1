@@ -8,9 +8,11 @@ import json
 import os 
 
 # constants 
-N_WORKERS = os.environ['N_WORKERS'] 
+N_WORKERS = int(os.environ['N_WORKERS']) 
 RESULT_PATH = 'experimental-result.pkl'
-RESULT_BLOB_NAME = 'experimental-result.pkl' 
+RESULT_BLOB_NAME = 'experimental-result.pkl'
+LOGS_PATH = '/app/logs'
+LOGS_BLOB_NAME = 'logs'
 
 def run_simple_eval_experiment(kwargs_json_iterable):
     from simple_eval import simple_eval_experiment # RAM and disk heavy 
@@ -32,16 +34,16 @@ test_args = study_probability_axis(n_real_fake=[
                 (1000, 0), 
                 (1000, 1000),
                 (1000, 10000), 
-                (1000, 300000), 
-                (100000, 0), 
-                (100000, 1000), 
-                (100000, 10000), 
-                (100000, 100000), 
-                (100000, 300000),
-                (100000, 600000) 
+                (1000, 300000) 
+                #(100000, 0), 
+                #(100000, 1000), 
+                #(100000, 10000), 
+                #(100000, 100000), 
+                #(100000, 300000),
+                #(100000, 600000) 
             ]
         ) 
-test_args = sc.parallelize(test_args, len(test_args)) 
+test_args = sc.parallelize(test_args, len(test_args)) # keep one worker in reserve  
 
 def distributed_simple_experiment(args=test_args):
     return args.mapPartitions(run_simple_eval_experiment).collect()  
@@ -54,9 +56,10 @@ output = list(zip(test_args.collect(), results))
 with open(RESULT_PATH, 'wb') as f:
     pickle.dump(output, f)
 
-upload_blob(RESULT_PATH, RESULT_BLOB_NAME) 
+upload_blob(RESULT_PATH, RESULT_BLOB_NAME)
+upload_blob(LOGS_PATH, LOGS_BLOB_NAME)
 
 while True:
     print('job done, shutting down cluster...') 
-    delete_cluster() 
+    #delete_cluster() # TODO debugging. do not delete cluster 
     sleep(100) 
