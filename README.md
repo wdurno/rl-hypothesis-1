@@ -49,7 +49,11 @@ I've tested the q-net and gan software. It's good stuff. The q-net really needs 
   - Fits a transfer-learned q-net 
   - Returns game play performance statistics
 
+## How it works 
+
+![rl-hypothesis-1-graphic.png](rl-hypothesis-1-graphic.png)
+
 ## Results 
 
-This experiment is currently inconclusive. Computationally, everything works. However, the *transfer-learned q-nets* of stage 4 aren't fitting well, even when sampling real data (no GAN).
+This experiment is currently inconclusive. Automation is complete, but I need to find the right parameters for my experiment. 
 
