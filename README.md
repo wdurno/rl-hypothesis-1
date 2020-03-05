@@ -53,7 +53,13 @@ I've tested the q-net and gan software. It's good stuff. The q-net really needs 
 
 ![rl-hypothesis-1-graphic.png](rl-hypothesis-1-graphic.png)
 
+### Engineering details 
+
+- Compute environment is a single, multi-purpose container. 
+- VMs and Clusters will auto-terminate after executing work. 
+- Spark worker nodes are assigned to preemptible machines, reducing compute costs by about 5 times.
+
 ## Results 
 
-This experiment is currently inconclusive. Automation is complete, but I need to find the right parameters for my experiment. 
+This experiment is currently inconclusive. Automation is complete, but I need to find the right parameters for my experiment.  
 
