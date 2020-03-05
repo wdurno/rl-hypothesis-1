@@ -45,12 +45,11 @@ I've tested the q-net and gan software. It's good stuff. The q-net really needs 
 - Simple evaluation 
   - Run `bash 4-scaled-simple-eval.sh`
   - Launches Spark on Kubernetes cluster 
-  - Needs automation: you'll need to ssh into master to execute 
   - Generates samples from GAN
   - Fits a transfer-learned q-net 
   - Returns game play performance statistics
 
 ## Results 
 
-This experiment is currently inconclusive. Computationally, everything works. However, the *transfer-learned q-nets* of stage 4 aren't fitting well, even when sampling real data (no GAN). 
+This experiment is currently inconclusive. Computationally, everything works. However, the *transfer-learned q-nets* of stage 4 aren't fitting well, even when sampling real data (no GAN).
 

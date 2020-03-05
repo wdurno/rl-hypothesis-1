@@ -17,8 +17,9 @@ gcloud beta container \
 	--subnetwork "projects/gdax-dnn/regions/us-central1/subnetworks/default" \
 	--default-max-pods-per-node "110" \
 	--addons HorizontalPodAutoscaling,HttpLoadBalancing \
-	--enable-autoupgrade \
-	--enable-autorepair
+	--no-enable-autoupgrade \
+	--enable-autorepair \
+	--enable-autoupgrade 
 gcloud beta container --project "gdax-dnn" \
 	node-pools create "spark-worker" \
 	--cluster "${RL_HYPOTHESIS_1_INSTANCE}" \
@@ -32,5 +33,5 @@ gcloud beta container --project "gdax-dnn" \
 	--scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" \
 	--preemptible \
 	--num-nodes "${RL_HYPOTHESIS_1_N_WORKERS}" \
-	--enable-autoupgrade \
-	--enable-autorepair
+        --enable-autorepair \
+	--enable-autoupgrade 
