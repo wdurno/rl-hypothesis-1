@@ -17,7 +17,7 @@ from transfer_sampler import inverse_transfer_sample
 from keras.layers.advanced_activations import ReLU
 from keras.layers import Dense 
 from keras.models import Sequential, Model 
-from keras.optimizers import Adam
+from keras.optimizers import RMSprop
 from keras import backend as K 
 import os 
 import gym
@@ -67,7 +67,7 @@ def simple_sample(n_real, n_fake):
     fake_data = list(fake_data) 
     return real_data + fake_data 
 
-def fit(data, n_args=3, discount=.95, n_iters=10000, verbose=False, mini_batch=100):
+def fit(data, n_args=3, discount=.95, n_iters=100000, verbose=False, mini_batch=100):
     '''
     Fits a transfer-learned model on embedded data. Once fit, the 
     abstract model is combined with its lower parts (ie. convolutions) 
@@ -85,7 +85,7 @@ def fit(data, n_args=3, discount=.95, n_iters=10000, verbose=False, mini_batch=1
     q_scores = K.sum(q_scores * action_one_hots, axis=1) 
     square_error = K.square(y - q_scores) 
     loss = K.mean(square_error)
-    updates = Adam(.001, .9).get_updates(loss, model.trainable_weights)
+    updates = RMSprop(lr=0.00025, epsilon=0.01).get_updates(loss, model.trainable_weights)
     train = K.function([model.input, action_ints, y], [loss], updates=updates) 
     ## Fit last layer of q-net on data 
     # build inputs from [(s_t, a_t, r_t, s_t+1, d_t)]_t data 

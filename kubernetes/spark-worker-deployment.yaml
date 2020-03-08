@@ -26,10 +26,10 @@ spec:
           resources:
             requests:
               cpu: "3200m"
-              memory: "22Gi"
+              memory: "21Gi"
             limits:
               cpu: "3700m"
-              memory: "23Gi"
+              memory: "22Gi"
           volumeMounts:
           - mountPath: /dat
             name: dat-volume
