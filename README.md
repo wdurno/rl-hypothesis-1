@@ -14,9 +14,10 @@ Fast and easy experimentation is prioritized. Content will be copied from public
 - base q-net software [here](https://github.com/rlcode/reinforcement-learning/blob/master/3-atari/1-breakout/breakout_dqn.py) 
 - execution environment [here](https://github.com/jaimeps/docker-rl-gym#docker-hub) 
   - NVidia TOS denies distribution of `cudnn` lib, so environment is CPU-only. This isn't a big setback since game simulation eats most of the time and is largely CPU-driven.
-- c-gan [here](https://github.com/eriklindernoren/Keras-GAN/blob/master/cgan/cgan.py) 
-  - Given the abstract nature of my data, I'm avoiding simulation of non-continuous values. 
-  - I simulate discrete values from their empirical distribution.  
+- ~~c-gan [here](https://github.com/eriklindernoren/Keras-GAN/blob/master/cgan/cgan.py)~~ 
+  - ~~Given the abstract nature of my data, I'm avoiding simulation of non-continuous values.~~ 
+  - ~~I simulate discrete values from their empirical distribution.~~ 
+- cVAE [here](https://github.com/lyeoni/keras-mnist-CVAE/blob/master/keras-mnist-CVAE.ipynb) 
 
 I've tested the q-net and gan software. It's good stuff. The q-net really needs some heavy parallelization, ideally a parameter server. However, I don't have the dev time and will eat the cycles instead. Fortunately, it seems to be using available CPU cores (up to 14) and does seem to need a lot of RAM--so, I'll use a beefy node.  
 
