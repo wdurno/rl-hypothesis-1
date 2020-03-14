@@ -21,7 +21,7 @@ fi
 
 if [ $JOB == "3-gan" ]; then
 	cd /app
-	exec python3 cgan.py
+	exec python3 cvae.py
 fi 
 
 if [ $JOB == "4-si" ]; then

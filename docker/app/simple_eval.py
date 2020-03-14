@@ -98,7 +98,7 @@ def fit(data, n_args=3, discount=.95, n_iters=500000, verbose=False, mini_batch=
     dones = np.array([int(tpl[4]) for tpl in data])
     losses = [] 
     stat_idx = random.sample(range(states.shape[0]), min(10, mini_batch))
-    for _ in range(n_iters): 
+    for itr in range(n_iters): 
         # iterate 
         idx = random.sample(range(states.shape[0]), mini_batch)
         y = rewards[idx] + (1-dones[idx]) * discount * np.amax(model.predict(next_states[idx,:]), axis=1) 
@@ -106,7 +106,7 @@ def fit(data, n_args=3, discount=.95, n_iters=500000, verbose=False, mini_batch=
         losses.append(l[0]) 
         if verbose:
             mean_q = np.mean(model.predict(states[stat_idx,:])) 
-            print('mean q: '+str(mean_q)) 
+            print('%: ' + str(itr/float(n_iters)) + ', mean q: '+str(mean_q)) 
     ## Combine with lower transfer-learned layers
     weights = dense.get_weights() 
     FULL_RL_MODEL.model.layers[-1].set_weights(weights) 
