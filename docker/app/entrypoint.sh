@@ -11,22 +11,22 @@ fi
 
 if [ $JOB == "1-rl" ]; then
 	cd /app
-	exec python3 rl.py
+	exec python3 -u rl.py
 fi
 
 if [ $JOB == "2-tr" ]; then
         cd /app
-        exec python3 transfer_sampler.py
+        exec python3 -u transfer_sampler.py
 fi
 
 if [ $JOB == "3-gan" ]; then
 	cd /app
-	exec python3 cvae.py
+	exec python3 -u cvae.py
 fi 
 
 if [ $JOB == "4-si" ]; then
         cd /app
-        exec python3 simple_eval.py
+        exec python3 -u simple_eval.py
 fi
 
 if [ $JOB == "5-ma" ]; then
@@ -41,7 +41,7 @@ fi
 
 if [ $JOB == "5-wo" ]; then
         cd /app
-        python3 get_models.py 
+        python3 -u get_models.py 
 	spark/spark-worker 
 fi
 

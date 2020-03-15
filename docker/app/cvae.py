@@ -3,6 +3,7 @@ from time import sleep
 import os 
 import pickle
 import numpy as np
+from random import choice 
 import matplotlib.pyplot as plt
 from keras.datasets import mnist
 from keras.layers import Input, Dense, Lambda, concatenate
@@ -16,6 +17,10 @@ cgan_data_path = '/dat/cgan-data.pkl'
 cgan_data_name = 'cgan-data.pkl'
 cgan_model_path = '/dat/cgan-model.h5'
 cgan_model_name = 'cgan-model.h5'
+cvae_simulated_data_path = '/dat/cvae-example-data.pkl'
+cvae_simulated_data_name = 'cvae-example-data.pkl'
+cvae_fit_stats_path = '/dat/cvae-fit-stats.pkl'
+cvae_fit_stats_name = 'cvae-fit-stats.pkl'
 
 if not os.path.isfile(cgan_data_path):
     download_blob(cgan_data_name, cgan_data_path) 
@@ -115,19 +120,19 @@ class CVAE:
         batch_size = self.batch_size 
         n_epoch = self.n_epoch
         ## fit model 
-        one_hots = self.one_hot(data[1]) 
-        self.cvae.fit([data[0], one_hots],
+        one_hots = self.__one_hot(data[1]) 
+        return self.cvae.fit([data[0], one_hots],
                 shuffle=True,
                 epochs=n_epoch, 
                 batch_size=batch_size,
                 verbose=1)
-        pass
     
     def generate(self, labels, apply_one_hot_transform=True):
+        labels = np.array(labels) 
         if apply_one_hot_transform:
             labels = self.__one_hot(labels) 
         z = np.random.normal(size=(labels.shape[0], self.latent_dim)) 
-        return self.generator.predict([z, labels]) 
+        return self.generator.predict(np.concatenate([z, labels], axis=1)) 
     
     def save_model(self, path): 
         self.cvae.save_weights(path) 
@@ -135,9 +140,19 @@ class CVAE:
 
 if __name__ == '__main__':
     cvae = CVAE(data_dim=512*2, label_dim=9) 
-    cvae.fit() 
+    ## fit and save model 
+    fit_stats = cvae.fit() 
     cvae.save_model(cgan_model_path) 
     upload_blob(cgan_model_path, cgan_model_name) 
+    ## save and upload loss stats 
+    with open(cvae_fit_stats_path, 'wb') as f: 
+        pickle.dump(fit_stats, f)
+    upload_blob(cvae_fit_stats_path, cvae_fit_stats_name) 
+    ## generate and save simulated data 
+    cvae_simulated_data = cvae.generate([choice(range(9)) for _ in range(1000)]) 
+    with open(cvae_simulated_data_path, 'wb') as f: 
+        pickle.dump(cvae_simulated_data, f) 
+    upload_blob(cvae_simulated_data_path, cvae_simulated_data_name) 
     while True:
         shutdown()
         sleep(100) 
