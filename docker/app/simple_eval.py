@@ -11,7 +11,7 @@
 
 ## libraries 
 from gcp_api_wrapper import download_blob, upload_blob, shutdown
-from cgan import CGAN
+from cvae import CVAE
 from rl import DQNAgent 
 from transfer_sampler import inverse_transfer_sample
 from keras.layers.advanced_activations import ReLU
@@ -45,7 +45,7 @@ if not os.path.isfile(FULL_RL_MODEL_PATH):
 # load files 
 with open(CGAN_DATA_PATH, 'rb') as f: 
     CGAN_DATA = pickle.load(f)
-CGAN_MODEL = CGAN(load_model_path=CGAN_MODEL_PATH)
+CVAE_MODEL = CVAE(data_dim=512*2, label_dim=9, model_path=CGAN_MODEL_PATH)
 FULL_RL_MODEL = DQNAgent(action_size=3, load_model=True) 
 
 def simple_sample(n_real, n_fake): 
@@ -156,8 +156,7 @@ def __sample_fake_data(n):
     # semi-stratified sampling over `(rewarded and dead)`. 
     # `action` assumed uniformly distributed. 
     labels = np.random.choice([0,1,2,3,4,5,6,7,8], p=[.01/3, .03/3, .96/3]*3, size=n) 
-    noise = np.random.normal(0, 1, (n, 100)) 
-    fake_data_raw = CGAN_MODEL.generator.predict([noise, labels]) 
+    fake_data_raw = CVAE_MODEL.generate(labels) 
     # data needs to be transformed into `(state_t, action_t, reward_t, state_t+1, dead_t)` 
     fake_data = inverse_transfer_sample(fake_data_raw, list(labels)) 
     return fake_data

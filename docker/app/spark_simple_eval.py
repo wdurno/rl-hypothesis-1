@@ -25,16 +25,17 @@ def run_simple_eval_experiment(kwargs_json_iterable):
         yield str(metric).encode('ascii') 
     pass
 
-def study_probability_axis(n_real_fake=[(1000, 1000), (1000, 2000)], metric_sample_size=1000):
+def study_probability_axis(n_real_fake=[(1000, 1000), (1000, 2000)], metric_sample_size=10):
     args = []
     for rf_pair in n_real_fake:
         for _ in range(metric_sample_size): 
-            args.append(json.dumps({'n_real': rf_pair[0], 'n_fake': rf_pair[1], 'metric_sample_size': 5}).encode('ascii')) 
+            args.append(json.dumps({'n_real': rf_pair[0], 'n_fake': rf_pair[1], 'metric_sample_size': 1}).encode('ascii')) 
     return args
 
 test_args = study_probability_axis(n_real_fake=[
                 (1000, 0), 
-                (1000, 300000)  
+                (1000, 300000), 
+                (300000, 0)
             ]
         ) 
 test_args = sc.parallelize(test_args, len(test_args))  
