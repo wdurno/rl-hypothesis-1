@@ -123,9 +123,12 @@ class CVAE:
                 verbose=1)
         pass
     
-    def generate(self):
-        pass
-
+    def generate(self, labels, apply_one_hot_transform=True):
+        if apply_one_hot_transform:
+            labels = self.__one_hot(labels) 
+        z = np.random.normal(size=(labels.shape[0], self.latent_dim)) 
+        return self.generator.predict([z, labels]) 
+    
     def save_model(self, path): 
         self.cvae.save_weights(path) 
     pass
@@ -134,7 +137,7 @@ if __name__ == '__main__':
     cvae = CVAE(data_dim=512*2, label_dim=9) 
     cvae.fit() 
     cvae.save_model(cgan_model_path) 
-    upload_blob(cgan_model_name, cgan_model_path) 
+    upload_blob(cgan_model_path, cgan_model_name) 
     while True:
         shutdown()
         sleep(100) 
