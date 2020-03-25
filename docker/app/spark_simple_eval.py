@@ -25,7 +25,7 @@ def run_simple_eval_experiment(kwargs_json_iterable):
         yield str(metric).encode('ascii') 
     pass
 
-def study_probability_axis(n_real_fake=[(1000, 1000), (1000, 2000)], metric_sample_size=10):
+def study_probability_axis(n_real_fake=[(1000, 1000), (1000, 2000)], metric_sample_size=20):
     args = []
     for rf_pair in n_real_fake:
         for _ in range(metric_sample_size): 
@@ -33,9 +33,10 @@ def study_probability_axis(n_real_fake=[(1000, 1000), (1000, 2000)], metric_samp
     return args
 
 test_args = study_probability_axis(n_real_fake=[
-                (1000, 0), 
-                (1000, 300000), 
-                (300000, 0)
+                #(1000, 0), 
+                #(1000, 300000), 
+                (300000, 0),
+                (300000, 5000)
             ]
         ) 
 test_args = sc.parallelize(test_args, len(test_args))  

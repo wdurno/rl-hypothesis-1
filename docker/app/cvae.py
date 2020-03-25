@@ -31,7 +31,7 @@ class CVAE:
     '''
     Conditional Variational Autoencoder
     '''
-    def __init__(self, data_dim, label_dim, latent_dim=10, n_hidden=512, model_path=None, batch_size=100000, n_epoch=50):
+    def __init__(self, data_dim, label_dim, latent_dim=1000, n_hidden=1024, model_path=None, batch_size=100000, n_epoch=1000, kl_coef=.01):
         '''
         model_path: If `None`, then initialize an untrained model. Otherwise, load from the path. 
         '''
@@ -43,6 +43,7 @@ class CVAE:
         self.model_path = model_path 
         self.batch_size = batch_size
         self.n_epoch = n_epoch 
+        self.kl_coef = kl_coef 
         ## define model 
         self.__init_model()
         if model_path is not None: 
@@ -59,6 +60,7 @@ class CVAE:
         latent_dim = self.latent_dim 
         n_hidden = self.n_hidden 
         batch_size = self.batch_size 
+        kl_coef = self.kl_coef 
         ## encoder 
         x = Input(shape=(data_dim,)) 
         condition = Input(shape=(label_dim,))
@@ -88,7 +90,7 @@ class CVAE:
         ## loss 
         reconstruction_loss = objectives.mean_squared_error(x, y) 
         kl_loss = .5 * K.mean(K.square(mu) + K.exp(log_var) - log_var - 1, axis=-1) 
-        cvae_loss = reconstruction_loss + kl_loss 
+        cvae_loss = reconstruction_loss + kl_coef * kl_loss 
         ## define full model 
         cvae = Model([x, condition], y) 
         cvae.add_loss(cvae_loss) 
@@ -141,7 +143,8 @@ class CVAE:
 if __name__ == '__main__':
     cvae = CVAE(data_dim=512*2, label_dim=9) 
     ## fit and save model 
-    fit_stats = cvae.fit() 
+    fit_stats = cvae.fit()
+    fit_stats = [losses.mean() for losses in fit_stats.history['loss']] # get mean losses per epoch 
     cvae.save_model(cgan_model_path) 
     upload_blob(cgan_model_path, cgan_model_name) 
     ## save and upload loss stats 
