@@ -13,25 +13,25 @@ from keras import objectives
 from keras.utils import to_categorical
 from scipy.stats import norm
 
-cgan_data_path = '/dat/cgan-data.pkl'
-cgan_data_name = 'cgan-data.pkl'
-cgan_model_path = '/dat/cgan-model.h5'
-cgan_model_name = 'cgan-model.h5'
+cvae_data_path = '/dat/cvae-data.pkl'
+cvae_data_name = 'cvae-data.pkl'
+cvae_model_path = '/dat/cvae-model.h5'
+cvae_model_name = 'cvae-model.h5'
 cvae_simulated_data_path = '/dat/cvae-example-data.pkl'
 cvae_simulated_data_name = 'cvae-example-data.pkl'
 cvae_fit_stats_path = '/dat/cvae-fit-stats.pkl'
 cvae_fit_stats_name = 'cvae-fit-stats.pkl'
 
-if not os.path.isfile(cgan_data_path):
-    download_blob(cgan_data_name, cgan_data_path) 
-with open(cgan_data_path, 'rb') as f:
+if not os.path.isfile(cvae_data_path):
+    download_blob(cvae_data_name, cvae_data_path) 
+with open(cvae_data_path, 'rb') as f:
     data = pickle.load(f)
 
 class CVAE:
     '''
     Conditional Variational Autoencoder
     '''
-    def __init__(self, data_dim, label_dim, latent_dim=1000, n_hidden=1024, model_path=None, batch_size=100000, n_epoch=1000, kl_coef=.01):
+    def __init__(self, data_dim, label_dim, latent_dim=100, n_hidden=512, model_path=None, batch_size=100000, n_epoch=300, kl_coef=.1):
         '''
         model_path: If `None`, then initialize an untrained model. Otherwise, load from the path. 
         '''
@@ -145,8 +145,8 @@ if __name__ == '__main__':
     ## fit and save model 
     fit_stats = cvae.fit()
     fit_stats = [losses.mean() for losses in fit_stats.history['loss']] # get mean losses per epoch 
-    cvae.save_model(cgan_model_path) 
-    upload_blob(cgan_model_path, cgan_model_name) 
+    cvae.save_model(cvae_model_path) 
+    upload_blob(cvae_model_path, cvae_model_name) 
     ## save and upload loss stats 
     with open(cvae_fit_stats_path, 'wb') as f: 
         pickle.dump(fit_stats, f)

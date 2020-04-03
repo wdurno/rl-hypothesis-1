@@ -27,25 +27,25 @@ import numpy as np
 from time import time 
 
 ## constants 
-CGAN_DATA_PATH='/dat/cgan-data.pkl'
-CGAN_DATA_BLOB_NAME='cgan-data.pkl'
-CGAN_MODEL_PATH='/dat/cgan-model.h5'
-CGAN_MODEL_BLOB_NAME='cgan-model.h5'
+CVAE_DATA_PATH='/dat/cvae-data.pkl'
+CVAE_DATA_BLOB_NAME='cvae-data.pkl'
+CVAE_MODEL_PATH='/dat/cvae-model.h5'
+CVAE_MODEL_BLOB_NAME='cvae-model.h5'
 FULL_RL_MODEL_PATH='/dat/breakout_dqn.h5'  
 FULL_RL_MODEL_BLOB_NAME='rl-full.h5'
 
 # ensure files are downloaded 
-if not os.path.isfile(CGAN_DATA_PATH): 
-    download_blob(CGAN_DATA_BLOB_NAME, CGAN_DATA_PATH) 
-if not os.path.isfile(CGAN_MODEL_PATH): 
-    download_blob(CGAN_MODEL_BLOB_NAME, CGAN_MODEL_PATH) 
+if not os.path.isfile(CVAE_DATA_PATH): 
+    download_blob(CVAE_DATA_BLOB_NAME, CVAE_DATA_PATH) 
+if not os.path.isfile(CVAE_MODEL_PATH): 
+    download_blob(CVAE_MODEL_BLOB_NAME, CVAE_MODEL_PATH) 
 if not os.path.isfile(FULL_RL_MODEL_PATH):
     download_blob(FULL_RL_MODEL_BLOB_NAME, FULL_RL_MODEL_PATH) 
 
 # load files 
-with open(CGAN_DATA_PATH, 'rb') as f: 
-    CGAN_DATA = pickle.load(f)
-CVAE_MODEL = CVAE(data_dim=512*2, label_dim=9, model_path=CGAN_MODEL_PATH)
+with open(CVAE_DATA_PATH, 'rb') as f: 
+    CVAE_DATA = pickle.load(f)
+CVAE_MODEL = CVAE(data_dim=512*2, label_dim=9, model_path=CVAE_MODEL_PATH)
 FULL_RL_MODEL = DQNAgent(action_size=3, load_model=True) 
 
 def simple_sample(n_real, n_fake): 
@@ -143,9 +143,9 @@ def simple_eval_experiment(n_real=1000, n_fake=1000, metric_sample_size=1000, me
     return metric 
 
 def __sample_real_data(n):
-    idx = random.sample(range(CGAN_DATA[1].shape[0]), n) 
-    states = CGAN_DATA[0][idx,:] 
-    labels = CGAN_DATA[1][idx] 
+    idx = random.sample(range(CVAE_DATA[1].shape[0]), n) 
+    states = CVAE_DATA[0][idx,:] 
+    labels = CVAE_DATA[1][idx] 
     return inverse_transfer_sample(states, list(labels)) 
 
 def __sample_fake_data(n):
