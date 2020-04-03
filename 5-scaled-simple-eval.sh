@@ -10,10 +10,12 @@ scripts/spin-up-cluster.sh
 cat kubernetes/spark-master-deployment.yaml | envsubst | kubectl apply -f - 
 cat kubernetes/spark-master-service.yaml | envsubst | kubectl apply -f -
 cat kubernetes/spark-worker-deployment.yaml | envsubst | kubectl apply -f -
-# wait until ready 
-while [ $(kubectl get pods | tail -n+2 | grep master | awk '{print $3;}') != "Running" ]; do 
+# wait until ready
+! STATE=$(kubectl get pods | tail -n+2 | grep master | awk '{print $3;}')
+while [ $STATE != "Running" ]; do 
+	! STATE=$(kubectl get pods | tail -n+2 | grep master | awk '{print $3;}') 
 	echo waiting for master to be ready...
-	sleep 5 
+	sleep 30 
 done
 ## get master 
 MASTER=$(kubectl get pods | tail -n+2 | grep master | awk '{print $1;}')

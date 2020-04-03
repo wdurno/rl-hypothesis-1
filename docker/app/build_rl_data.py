@@ -20,9 +20,6 @@ from keras import backend as K
 
 EPISODES = 50000
 
-## TODO load data into memory 
-## TODO fit without simulation 
-## TODO validate fit with simulation 
 
 class DQNAgent:
     def __init__(self, action_size, load_model):
@@ -341,11 +338,12 @@ if __name__ == "__main__":
                 agent.avg_q_max, agent.avg_loss = 0, 0
 
         if e % 1000 == 0:
-            agent.model.save_weights("/dat/breakout_dqn.h5")
-            # upload to GCP storage 
-            blob = bucket.blob('rl-full.h5') 
-            blob.upload_from_filename('/dat/breakout_dqn.h5')
-            # save and upload memory 
+            ## Model is now out-of-date and is thus discarded. 
+            #agent.model.save_weights("/dat/breakout_dqn.h5")
+            ## upload to GCP storage 
+            #blob = bucket.blob('rl-full.h5') 
+            #blob.upload_from_filename('/dat/breakout_dqn.h5')
+            ## save and upload memory 
             with open('/dat/memory.pkl', 'wb') as f: 
                 pickle.dump(agent.memory, f) 
             blob = bucket.blob('/dat/memory.pkl') 

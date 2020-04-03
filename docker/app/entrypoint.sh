@@ -9,22 +9,29 @@ if [ $JOB == "0-de" ]; then
         while true; do echo sleeping; sleep 100; done;  
 fi
 
-if [ $JOB == "1-rl" ]; then
+if [ $JOB == "1-bu" ]; then
 	cd /app
-	exec python3 -u rl.py
+	exec python3 -u build_rl_data.py
 fi
 
-if [ $JOB == "2-tr" ]; then
+# TODO add a modification step here 
+
+if [ $JOB == "2-rl" ]; then
+        cd /app
+        exec python3 -u rl.py
+fi
+
+if [ $JOB == "3-tr" ]; then
         cd /app
         exec python3 -u transfer_sampler.py
 fi
 
-if [ $JOB == "3-gan" ]; then
+if [ $JOB == "4-vae" ]; then
 	cd /app
 	exec python3 -u cvae.py
 fi 
 
-if [ $JOB == "4-si" ]; then
+if [ $JOB == "5-si" ]; then
         cd /app
         exec python3 -u simple_eval.py
 fi
