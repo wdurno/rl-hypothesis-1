@@ -11,7 +11,7 @@
 
 ## libraries 
 from gcp_api_wrapper import download_blob, upload_blob, shutdown
-from cgan import CGAN
+from cvae import CVAE
 from rl import DQNAgent 
 from transfer_sampler import inverse_transfer_sample
 from keras.layers.advanced_activations import ReLU
@@ -27,25 +27,25 @@ import numpy as np
 from time import time 
 
 ## constants 
-CGAN_DATA_PATH='/dat/cgan-data.pkl'
-CGAN_DATA_BLOB_NAME='cgan-data.pkl'
-CGAN_MODEL_PATH='/dat/cgan-model.h5'
-CGAN_MODEL_BLOB_NAME='cgan-model.h5'
+CVAE_DATA_PATH='/dat/cvae-data.pkl'
+CVAE_DATA_BLOB_NAME='cvae-data.pkl'
+CVAE_MODEL_PATH='/dat/cvae-model.h5'
+CVAE_MODEL_BLOB_NAME='cvae-model.h5'
 FULL_RL_MODEL_PATH='/dat/breakout_dqn.h5'  
 FULL_RL_MODEL_BLOB_NAME='rl-full.h5'
 
 # ensure files are downloaded 
-if not os.path.isfile(CGAN_DATA_PATH): 
-    download_blob(CGAN_DATA_BLOB_NAME, CGAN_DATA_PATH) 
-if not os.path.isfile(CGAN_MODEL_PATH): 
-    download_blob(CGAN_MODEL_BLOB_NAME, CGAN_MODEL_PATH) 
+if not os.path.isfile(CVAE_DATA_PATH): 
+    download_blob(CVAE_DATA_BLOB_NAME, CVAE_DATA_PATH) 
+if not os.path.isfile(CVAE_MODEL_PATH): 
+    download_blob(CVAE_MODEL_BLOB_NAME, CVAE_MODEL_PATH) 
 if not os.path.isfile(FULL_RL_MODEL_PATH):
     download_blob(FULL_RL_MODEL_BLOB_NAME, FULL_RL_MODEL_PATH) 
 
 # load files 
-with open(CGAN_DATA_PATH, 'rb') as f: 
-    CGAN_DATA = pickle.load(f)
-CGAN_MODEL = CGAN(load_model_path=CGAN_MODEL_PATH)
+with open(CVAE_DATA_PATH, 'rb') as f: 
+    CVAE_DATA = pickle.load(f)
+CVAE_MODEL = CVAE(data_dim=512*2, label_dim=9, model_path=CVAE_MODEL_PATH)
 FULL_RL_MODEL = DQNAgent(action_size=3, load_model=True) 
 
 def simple_sample(n_real, n_fake): 
@@ -98,7 +98,7 @@ def fit(data, n_args=3, discount=.95, n_iters=500000, verbose=False, mini_batch=
     dones = np.array([int(tpl[4]) for tpl in data])
     losses = [] 
     stat_idx = random.sample(range(states.shape[0]), min(10, mini_batch))
-    for _ in range(n_iters): 
+    for itr in range(n_iters): 
         # iterate 
         idx = random.sample(range(states.shape[0]), mini_batch)
         y = rewards[idx] + (1-dones[idx]) * discount * np.amax(model.predict(next_states[idx,:]), axis=1) 
@@ -106,7 +106,7 @@ def fit(data, n_args=3, discount=.95, n_iters=500000, verbose=False, mini_batch=
         losses.append(l[0]) 
         if verbose:
             mean_q = np.mean(model.predict(states[stat_idx,:])) 
-            print('mean q: '+str(mean_q)) 
+            print('%: ' + str(itr/float(n_iters)) + ', mean q: '+str(mean_q)) 
     ## Combine with lower transfer-learned layers
     weights = dense.get_weights() 
     FULL_RL_MODEL.model.layers[-1].set_weights(weights) 
@@ -143,9 +143,9 @@ def simple_eval_experiment(n_real=1000, n_fake=1000, metric_sample_size=1000, me
     return metric 
 
 def __sample_real_data(n):
-    idx = random.sample(range(CGAN_DATA[1].shape[0]), n) 
-    states = CGAN_DATA[0][idx,:] 
-    labels = CGAN_DATA[1][idx] 
+    idx = random.sample(range(CVAE_DATA[1].shape[0]), n) 
+    states = CVAE_DATA[0][idx,:] 
+    labels = CVAE_DATA[1][idx] 
     return inverse_transfer_sample(states, list(labels)) 
 
 def __sample_fake_data(n):
@@ -156,8 +156,7 @@ def __sample_fake_data(n):
     # semi-stratified sampling over `(rewarded and dead)`. 
     # `action` assumed uniformly distributed. 
     labels = np.random.choice([0,1,2,3,4,5,6,7,8], p=[.01/3, .03/3, .96/3]*3, size=n) 
-    noise = np.random.normal(0, 1, (n, 100)) 
-    fake_data_raw = CGAN_MODEL.generator.predict([noise, labels]) 
+    fake_data_raw = CVAE_MODEL.generate(labels) 
     # data needs to be transformed into `(state_t, action_t, reward_t, state_t+1, dead_t)` 
     fake_data = inverse_transfer_sample(fake_data_raw, list(labels)) 
     return fake_data

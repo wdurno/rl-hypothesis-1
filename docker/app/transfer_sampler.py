@@ -11,7 +11,7 @@ from keras.layers.advanced_activations import ReLU
 
 model_path = '/dat/transfer-model.h5' 
 data_path = '/dat/data.pkl'
-cgan_data_path = '/dat/cgan-data.pkl'
+cvae_data_path = '/dat/cvae-data.pkl'
 
 # download model only if needed 
 if not os.path.isfile(model_path): 
@@ -145,7 +145,7 @@ def inverse_transfer_sample(array, state_list):
     inverse_transfer_samples = list(map(lambda i: (before[i,:], ard[i][0], ard[i][1], after[i,:], ard[i][2]), range(n))) 
     return inverse_transfer_samples 
 
-def cgan_sample(n=10000, model=rl_1_dense):
+def cvae_sample(n=10000, model=rl_1_dense):
     '''
     Generates a random sample of transformed RL observations.
     Transfer learning transform is applied.
@@ -157,10 +157,10 @@ def cgan_sample(n=10000, model=rl_1_dense):
     return states, labels
 
 def transform_all_and_upload(model=rl_1_dense): 
-    sample_tuple = cgan_sample(n=-1, model=model) 
-    with open(cgan_data_path, 'wb') as f: 
+    sample_tuple = cvae_sample(n=-1, model=model) 
+    with open(cvae_data_path, 'wb') as f: 
         pickle.dump(sample_tuple, f) 
-    upload_blob(cgan_data_path, 'cgan-data.pkl') 
+    upload_blob(cvae_data_path, 'cvae-data.pkl') 
     pass 
 
 if __name__ == '__main__':
