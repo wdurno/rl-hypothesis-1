@@ -14,8 +14,6 @@ if [ $JOB == "1-bu" ]; then
 	exec python3 -u build_rl_data.py
 fi
 
-# TODO add a modification step here 
-
 if [ $JOB == "2-rl" ]; then
         cd /app
         exec python3 -u rl.py

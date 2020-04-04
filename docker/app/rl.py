@@ -33,6 +33,7 @@ class DQNAgent:
     def __init__(self, action_size, load_model=False, load_data=False):
         self.render = False
         self.load_model = load_model
+        self.load_data = load_data 
         # environment settings
         self.state_size = (84, 84, 4)
         self.action_size = action_size
@@ -43,7 +44,7 @@ class DQNAgent:
         self.epsilon_decay_step = (self.epsilon_start - self.epsilon_end) \
                                   / self.exploration_steps
         # parameters about training
-        self.batch_size = 32
+        self.batch_size = 2000
         self.train_start = 50000
         self.update_target_rate = 10000
         self.discount_factor = 0.99
@@ -257,16 +258,17 @@ if __name__ == "__main__":
     # login to storage 
     storage_client = storage.Client.from_service_account_json('/app/service-account.json') 
     bucket = storage_client.bucket(os.environ['BUCKET_NAME']) 
-    agent = DQNAgent(action_size=3)
+    agent = DQNAgent(action_size=3, load_data=True)
     for e in range(EPISODES):
         agent.train_replay() 
-        if e % 1000 == 0:
+        if e % 10 == 0 and e > 0: 
+            print(str(e+1)+'/'+str(EPISODES)+' ('+str(100.*(e+1)/EPISODES)+'%)') 
+        if e % 1000 == 0 and e > 0:
             agent.model.save_weights("/dat/breakout_dqn.h5")
             # upload to GCP storage
             blob = bucket.blob('rl-full.h5')
             blob.upload_from_filename('/dat/breakout_dqn.h5')
             ## reporting 
-            print(str(e)+'/'+str(EPISODES)+' ('+str(100.*e/EPISODES)+'%)') 
             print('Simulation score: '+str(agent.simulate())) 
     # work complete
     while True:
