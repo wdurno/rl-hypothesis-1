@@ -1,4 +1,4 @@
-from gcp_api_wrapper import shutdown
+from gcp_api_wrapper import shutdown, download_blob 
 from google.cloud import storage 
 import os 
 from time import sleep 
@@ -16,16 +16,21 @@ from keras.models import Sequential
 from keras.optimizers import RMSprop
 from keras.layers import Dense, Flatten
 from keras.layers.convolutional import Conv2D
+from keras.layers.advanced_activations import LeakyReLU
 from keras import backend as K
 
 EPISODES = 50000
 
-## TODO load data into memory 
-## TODO fit without simulation 
-## TODO validate fit with simulation 
+EMBEDDING_DIM = 10 
+
+data_path = '/dat/data.pkl'
+
+if not os.path.isfile(data_path):
+    download_blob('memory.pkl-backup', data_path)
+    pass
 
 class DQNAgent:
-    def __init__(self, action_size, load_model):
+    def __init__(self, action_size, load_model=False, load_data=False):
         self.render = False
         self.load_model = load_model
         # environment settings
@@ -64,6 +69,10 @@ class DQNAgent:
         if self.load_model:
             self.model.load_weights("/dat/breakout_dqn.h5")
 
+        if self.load_data: 
+            with open(data_path, 'rb') as f:
+                self.memory = pickle.load(f) 
+
     # if the error is in [-1, 1], then the cost is quadratic to the error
     # But outside the interval, the cost is linear to the error
     def optimizer(self):
@@ -96,8 +105,9 @@ class DQNAgent:
         model.add(Conv2D(64, (3, 3), strides=(1, 1), activation='relu'))
         model.add(Flatten())
         model.add(Dense(512, activation='relu'))
-        self.last_dense = Dense(self.action_size) 
-        model.add(self.last_dense) 
+        model.add(Dense(EMBEDDING_DIM)) 
+        model.add(LeakyReLU(alpha=0.2)) 
+        model.add(Dense(self.action_size)) 
         model.summary()
         return model
 
@@ -247,110 +257,18 @@ if __name__ == "__main__":
     # login to storage 
     storage_client = storage.Client.from_service_account_json('/app/service-account.json') 
     bucket = storage_client.bucket(os.environ['BUCKET_NAME']) 
-    # In case of BreakoutDeterministic-v3, always skip 4 frames
-    # Deterministic-v4 version use 4 actions
-    env = gym.make('BreakoutDeterministic-v4')
     agent = DQNAgent(action_size=3)
-
-    scores, episodes, global_step = [], [], 0
-
     for e in range(EPISODES):
-        done = False
-        dead = False
-        # 1 episode = 5 lives
-        step, score, start_life = 0, 0, 5
-        observe = env.reset()
-
-        # this is one of DeepMind's idea.
-        # just do nothing at the start of episode to avoid sub-optimal
-        for _ in range(random.randint(1, agent.no_op_steps)):
-            observe, _, _, _ = env.step(1)
-
-        # At start of episode, there is no preceding frame
-        # So just copy initial states to make history
-        state = pre_processing(observe)
-        history = np.stack((state, state, state, state), axis=2)
-        history = np.reshape([history], (1, 84, 84, 4))
-
-        while not done:
-            if agent.render:
-                env.render()
-            global_step += 1
-            step += 1
-
-            # get action for the current history and go one step in environment
-            action = agent.get_action(history)
-            # change action to real_action
-            if action == 0:
-                real_action = 1
-            elif action == 1:
-                real_action = 2
-            else:
-                real_action = 3
-
-            observe, reward, done, info = env.step(real_action)
-            # pre-process the observation --> history
-            next_state = pre_processing(observe)
-            next_state = np.reshape([next_state], (1, 84, 84, 1))
-            next_history = np.append(next_state, history[:, :, :, :3], axis=3)
-
-            agent.avg_q_max += np.amax(
-                agent.model.predict(np.float32(history / 255.))[0])
-
-            # if the agent missed ball, agent is dead --> episode is not over
-            if start_life > info['ale.lives']:
-                dead = True
-                start_life = info['ale.lives']
-
-            reward = np.clip(reward, -1., 1.)
-
-            # save the sample <s, a, r, s'> to the replay memory
-            agent.replay_memory(history, action, reward, next_history, dead)
-            # every some time interval, train model
-            agent.train_replay()
-            # update the target model with model
-            if global_step % agent.update_target_rate == 0:
-                agent.update_target_model()
-
-            score += reward
-
-            # if agent is dead, then reset the history
-            if dead:
-                dead = False
-            else:
-                history = next_history
-
-            # if done, plot the score over episodes
-            if done:
-                if global_step > agent.train_start:
-                    stats = [score, agent.avg_q_max / float(step), step,
-                             agent.avg_loss / float(step)]
-                    for i in range(len(stats)):
-                        agent.sess.run(agent.update_ops[i], feed_dict={
-                            agent.summary_placeholders[i]: float(stats[i])
-                        })
-                    summary_str = agent.sess.run(agent.summary_op)
-                    agent.summary_writer.add_summary(summary_str, e + 1)
-
-                print("episode:", e, "  score:", score, "  memory length:",
-                      len(agent.memory), "  epsilon:", agent.epsilon,
-                      "  global_step:", global_step, "  average_q:",
-                      agent.avg_q_max / float(step), "  average loss:",
-                      agent.avg_loss / float(step))
-
-                agent.avg_q_max, agent.avg_loss = 0, 0
-
+        agent.train_replay() 
         if e % 1000 == 0:
             agent.model.save_weights("/dat/breakout_dqn.h5")
-            # upload to GCP storage 
-            blob = bucket.blob('rl-full.h5') 
+            # upload to GCP storage
+            blob = bucket.blob('rl-full.h5')
             blob.upload_from_filename('/dat/breakout_dqn.h5')
-            # save and upload memory 
-            with open('/dat/memory.pkl', 'wb') as f: 
-                pickle.dump(agent.memory, f) 
-            blob = bucket.blob('/dat/memory.pkl') 
-            blob.upload_from_filename('/dat/memory.pkl') 
-    # work complete 
-    while True: 
-        shutdown() 
-        sleep(100) 
+            ## reporting 
+            print(str(e)+'/'+str(EPISODES)+' ('+str(100.*e/EPISODES)+'%)') 
+            print('Simulation score: '+str(agent.simulate())) 
+    # work complete
+    while True:
+        shutdown()
+        sleep(100)

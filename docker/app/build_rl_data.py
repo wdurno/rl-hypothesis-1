@@ -22,7 +22,7 @@ EPISODES = 50000
 
 
 class DQNAgent:
-    def __init__(self, action_size, load_model):
+    def __init__(self, action_size, load_model=False):
         self.render = False
         self.load_model = load_model
         # environment settings
@@ -247,7 +247,7 @@ if __name__ == "__main__":
     # In case of BreakoutDeterministic-v3, always skip 4 frames
     # Deterministic-v4 version use 4 actions
     env = gym.make('BreakoutDeterministic-v4')
-    agent = DQNAgent(action_size=3)
+    agent = DQNAgent(action_size=3) 
 
     scores, episodes, global_step = [], [], 0
 
