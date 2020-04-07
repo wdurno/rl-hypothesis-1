@@ -7,7 +7,9 @@ from time import sleep
 from keras.models import Sequential, Model 
 from keras.layers import Dense, Flatten
 from keras.layers.convolutional import Conv2D
-from keras.layers.advanced_activations import ReLU
+from keras.layers.advanced_activations import ReLU, LeakyReLU
+
+EMBEDDING_DIM = int(os.environ['EMBEDDING_DIM']) 
 
 model_path = '/dat/transfer-model.h5' 
 data_path = '/dat/data.pkl'
@@ -15,12 +17,12 @@ cvae_data_path = '/dat/cvae-data.pkl'
 
 # download model only if needed 
 if not os.path.isfile(model_path): 
-    download_blob('rl-full.h5-backup', model_path) 
+    download_blob('rl-full.h5', model_path) 
     pass
 
 # download data only if needed 
 if not os.path.isfile(data_path): 
-    download_blob('memory.pkl-backup', data_path) 
+    download_blob('memory.pkl', data_path) 
     pass
 
 with open(data_path , 'rb') as f: 
@@ -36,6 +38,8 @@ def build_model(state_size, action_size):
     model.add(ReLU())
     model.add(Dense(512))
     model.add(ReLU())
+    model.add(Dense(EMBEDDING_DIM)) 
+    model.add(LeakyReLU(alpha=0.2)) 
     model.add(Dense(action_size))
     model.summary()
     return model
@@ -43,7 +47,7 @@ def build_model(state_size, action_size):
 full_model = build_model((84, 84, 4), 3) 
 full_model.load_weights(model_path) 
 
-rl_1_dense = Model(inputs=full_model.inputs, outputs=full_model.layers[5].output)
+rl_1_dense = Model(inputs=full_model.inputs, outputs=full_model.layers[7].output)
 rl_convs = Model(inputs=full_model.inputs, outputs=full_model.layers[3].output)
 
 def _transfer_transform_rl_observation(rl_observation, model=rl_1_dense):
@@ -114,7 +118,7 @@ def _map_transfers_to_array(transfer_transformed_rl_observation):
     diff = np.clip(transfer_next_state - transfer_state, -150., 150.) 
     return np.concatenate([np.clip(transfer_state, -400., 400), diff], axis=1) 
 
-def _map_array_to_transfers(transfer_array, split_point=512): 
+def _map_array_to_transfers(transfer_array, split_point=EMBEDDING_DIM): 
     "returns state, next_state"
     before = transfer_array[:, :split_point] 
     diff = transfer_array[:, split_point:]
@@ -136,7 +140,7 @@ def inverse_transfer_sample(array, state_list):
     '''
     Extracts q-learning data in the form of `[(s_t, a_t, r_t, s_t+1, d_t)]_t`.
     inputs
-     - array: n x (2*512) matrix of n (s_t, s_t+1) pairs. 
+     - array: n x (2*EMBEDDING_DIM) matrix of n (s_t, s_t+1) pairs. 
      - state_list: n ints in a list 
     '''
     before, after = _map_array_to_transfers(array) 

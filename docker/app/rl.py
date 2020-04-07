@@ -16,13 +16,14 @@ from keras.models import Sequential
 from keras.optimizers import RMSprop
 from keras.layers import Dense, Flatten
 from keras.layers.convolutional import Conv2D
+from keras.layers.advanced_activations import LeakyReLU
 from keras import backend as K
 
 EPISODES = 50000
-
+EMBEDDING_DIM = int(os.environ['EMBEDDING_DIM']) 
 
 class DQNAgent:
-    def __init__(self, action_size, load_model):
+    def __init__(self, action_size, load_model=False):
         self.render = False
         self.load_model = load_model
         # environment settings
@@ -93,6 +94,8 @@ class DQNAgent:
         model.add(Conv2D(64, (3, 3), strides=(1, 1), activation='relu'))
         model.add(Flatten())
         model.add(Dense(512, activation='relu'))
+        model.add(Dense(EMBEDDING_DIM)) 
+        model.add(LeakyReLU(alpha=0.2)) 
         self.last_dense = Dense(self.action_size) 
         model.add(self.last_dense) 
         model.summary()
