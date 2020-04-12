@@ -12,9 +12,9 @@ CVAE_MODEL_BLOB_NAME='cvae-model.h5'
 FULL_RL_MODEL_PATH='/dat/breakout_dqn.h5'
 FULL_RL_MODEL_BLOB_NAME='rl-full.h5'
 TRANSFER_MODEL_PATH = '/dat/transfer-model.h5'
-TRANSFER_MODEL_BLOB_NAME = 'rl-full.h5-backup' 
+TRANSFER_MODEL_BLOB_NAME = 'rl-full.h5' 
 FULL_SIM_DATA_PATH = '/dat/data.pkl'
-FULL_SIM_DATA_BLOB_NAME = 'memory.pkl-backup' 
+FULL_SIM_DATA_BLOB_NAME = 'memory.pkl' 
 
 # ensure files are downloaded
 if True: #not os.path.isfile(CVAE_DATA_PATH):

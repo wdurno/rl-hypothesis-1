@@ -14,7 +14,7 @@ from gcp_api_wrapper import download_blob, upload_blob, shutdown
 from cvae import CVAE
 from rl import DQNAgent 
 from transfer_sampler import inverse_transfer_sample
-from keras.layers.advanced_activations import ReLU
+from keras.layers.advanced_activations import LeakyReLU
 from keras.layers import Dense 
 from keras.models import Sequential, Model 
 from keras.optimizers import RMSprop
@@ -25,6 +25,8 @@ import pickle
 import random 
 import numpy as np 
 from time import time 
+
+EMBEDDING_DIM = int(os.environ['EMBEDDING_DIM']) 
 
 ## constants 
 CVAE_DATA_PATH='/dat/cvae-data.pkl'
@@ -45,8 +47,8 @@ if not os.path.isfile(FULL_RL_MODEL_PATH):
 # load files 
 with open(CVAE_DATA_PATH, 'rb') as f: 
     CVAE_DATA = pickle.load(f)
-CVAE_MODEL = CVAE(data_dim=512*2, label_dim=9, model_path=CVAE_MODEL_PATH)
-FULL_RL_MODEL = DQNAgent(action_size=3, load_model=True) 
+CVAE_MODEL = CVAE(data_dim=EMBEDDING_DIM*2, label_dim=9, model_path=CVAE_MODEL_PATH)
+FULL_RL_MODEL = DQNAgent(action_size=3, load_model=True, no_op_steps=0) 
 
 def simple_sample(n_real, n_fake): 
     '''
@@ -75,7 +77,7 @@ def fit(data, n_args=3, discount=.95, n_iters=500000, verbose=False, mini_batch=
     '''
     ## Define model 
     model = Sequential() 
-    model.add(ReLU(input_shape=(512,)))
+    model.add(LeakyReLU(input_shape=(EMBEDDING_DIM,), alpha=0.2))
     dense = Dense(n_args) 
     model.add(dense) 
     q_scores = model.output 
@@ -90,9 +92,9 @@ def fit(data, n_args=3, discount=.95, n_iters=500000, verbose=False, mini_batch=
     ## Fit last layer of q-net on data 
     # build inputs from [(s_t, a_t, r_t, s_t+1, d_t)]_t data 
     states = np.array([tpl[0].flatten() for tpl in data]) 
-    states = np.reshape(states, (-1, 512)) 
+    states = np.reshape(states, (-1, EMBEDDING_DIM)) 
     next_states = np.array([tpl[3].flatten() for tpl in data])
-    next_states = np.reshape(next_states, (-1, 512))
+    next_states = np.reshape(next_states, (-1, EMBEDDING_DIM))
     action_ints = np.array([tpl[1] for tpl in data])
     rewards = np.array([tpl[2] for tpl in data])
     dones = np.array([int(tpl[4]) for tpl in data])

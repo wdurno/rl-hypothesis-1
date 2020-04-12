@@ -18,4 +18,5 @@ gcloud beta compute --project=${RL_HYPOTHESIS_1_PROJECT} instances create-with-c
 	--container-env=JOB=${RL_HYPOTHESIS_1_JOB} \
         --container-env=ZONE=${RL_HYPOTHESIS_1_ZONE} \
 	--container-env=PROJECT=${RL_HYPOTHESIS_1_PROJECT} \
-	--container-env=INSTANCE=${RL_HYPOTHESIS_1_INSTANCE} 
+	--container-env=INSTANCE=${RL_HYPOTHESIS_1_INSTANCE} \
+	--container-env=EMBEDDING_DIM=${RL_HYPOTHESIS_1_EMBEDDING_DIM}

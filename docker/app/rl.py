@@ -16,13 +16,14 @@ from keras.models import Sequential
 from keras.optimizers import RMSprop
 from keras.layers import Dense, Flatten
 from keras.layers.convolutional import Conv2D
+from keras.layers.advanced_activations import LeakyReLU
 from keras import backend as K
 
-EPISODES = 50000
-
+EPISODES = 10001 #50000
+EMBEDDING_DIM = int(os.environ['EMBEDDING_DIM']) 
 
 class DQNAgent:
-    def __init__(self, action_size, load_model):
+    def __init__(self, action_size, load_model=False, no_op_steps=30):
         self.render = False
         self.load_model = load_model
         # environment settings
@@ -40,7 +41,7 @@ class DQNAgent:
         self.update_target_rate = 10000
         self.discount_factor = 0.99
         self.memory = deque(maxlen=400000)
-        self.no_op_steps = 30
+        self.no_op_steps = no_op_steps 
         # build model
         self.model = self.build_model()
         self.target_model = self.build_model()
@@ -93,8 +94,9 @@ class DQNAgent:
         model.add(Conv2D(64, (3, 3), strides=(1, 1), activation='relu'))
         model.add(Flatten())
         model.add(Dense(512, activation='relu'))
-        self.last_dense = Dense(self.action_size) 
-        model.add(self.last_dense) 
+        model.add(Dense(EMBEDDING_DIM)) 
+        model.add(LeakyReLU(alpha=0.2)) 
+        model.add(Dense(self.action_size))
         model.summary()
         return model
 
@@ -195,7 +197,10 @@ class DQNAgent:
         if viz == 'jupyter': 
             plt.figure(figsize=(9,9))
             img = plt.imshow(env.render(mode='rgb_array')) # only call this once 
-        wait_steps = random.randint(1, self.no_op_steps) # start game idle 
+        if self.no_op_steps > 0:
+            wait_steps = random.randint(1, self.no_op_steps) # start game idle 
+        else:
+            wait_steps = 0 
         step = 0 
         score = 0. 
         done = False 
@@ -345,7 +350,7 @@ if __name__ == "__main__":
             # save and upload memory 
             with open('/dat/memory.pkl', 'wb') as f: 
                 pickle.dump(agent.memory, f) 
-            blob = bucket.blob('/dat/memory.pkl') 
+            blob = bucket.blob('memory.pkl') 
             blob.upload_from_filename('/dat/memory.pkl') 
     # work complete 
     while True: 

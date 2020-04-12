@@ -13,6 +13,8 @@ from keras import objectives
 from keras.utils import to_categorical
 from scipy.stats import norm
 
+EMBEDDING_DIM = int(os.environ['EMBEDDING_DIM']) 
+
 cvae_data_path = '/dat/cvae-data.pkl'
 cvae_data_name = 'cvae-data.pkl'
 cvae_model_path = '/dat/cvae-model.h5'
@@ -31,7 +33,7 @@ class CVAE:
     '''
     Conditional Variational Autoencoder
     '''
-    def __init__(self, data_dim, label_dim, latent_dim=100, n_hidden=512, model_path=None, batch_size=100000, n_epoch=300, kl_coef=.1):
+    def __init__(self, data_dim, label_dim, latent_dim=100, n_hidden=EMBEDDING_DIM, model_path=None, batch_size=100000, n_epoch=300, kl_coef=.1):
         '''
         model_path: If `None`, then initialize an untrained model. Otherwise, load from the path. 
         '''
@@ -141,7 +143,7 @@ class CVAE:
     pass
 
 if __name__ == '__main__':
-    cvae = CVAE(data_dim=512*2, label_dim=9) 
+    cvae = CVAE(data_dim=EMBEDDING_DIM*2, label_dim=9) 
     ## fit and save model 
     fit_stats = cvae.fit()
     fit_stats = [losses.mean() for losses in fit_stats.history['loss']] # get mean losses per epoch 
