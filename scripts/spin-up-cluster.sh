@@ -3,7 +3,7 @@ gcloud beta container \
 	clusters create "${RL_HYPOTHESIS_1_INSTANCE}" \
 	--zone "us-central1-a" \
 	--no-enable-basic-auth \
-	--cluster-version "1.14.10-gke.17" \
+	--cluster-version "1.14.10-gke.27" \
 	--machine-type "n1-standard-4" \
 	--image-type "COS" \
 	--disk-type "pd-standard" \
@@ -24,7 +24,7 @@ gcloud beta container --project "gdax-dnn" \
 	node-pools create "spark-worker" \
 	--cluster "${RL_HYPOTHESIS_1_INSTANCE}" \
 	--zone "us-central1-a" \
-	--node-version "1.14.10-gke.17" \
+	--node-version "1.14.10-gke.27" \
 	--machine-type "n1-highmem-4" \
 	--image-type "COS" \
 	--disk-type "pd-standard" \

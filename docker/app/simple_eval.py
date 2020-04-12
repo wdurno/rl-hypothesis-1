@@ -48,7 +48,7 @@ if not os.path.isfile(FULL_RL_MODEL_PATH):
 with open(CVAE_DATA_PATH, 'rb') as f: 
     CVAE_DATA = pickle.load(f)
 CVAE_MODEL = CVAE(data_dim=EMBEDDING_DIM*2, label_dim=9, model_path=CVAE_MODEL_PATH)
-FULL_RL_MODEL = DQNAgent(action_size=3, load_model=True) 
+FULL_RL_MODEL = DQNAgent(action_size=3, load_model=True, no_op_steps=0) 
 
 def simple_sample(n_real, n_fake): 
     '''

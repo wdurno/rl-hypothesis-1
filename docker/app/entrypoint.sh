@@ -19,7 +19,7 @@ if [ $JOB == "2-tr" ]; then
         exec python3 -u transfer_sampler.py
 fi
 
-if [ $JOB == "3-gan" ]; then
+if [ $JOB == "3-vae" ]; then
 	cd /app
 	exec python3 -u cvae.py
 fi 
