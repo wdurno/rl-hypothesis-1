@@ -35,7 +35,7 @@ class CVAE:
     '''
     Conditional Variational Autoencoder
     '''
-    def __init__(self, data_dim, label_dim, latent_dim=100, n_hidden=EMBEDDING_DIM, model_path=None, batch_size=100000, n_epoch=300, kl_coef=.1):
+    def __init__(self, data_dim, label_dim, latent_dim=3, n_hidden=256, model_path=None, batch_size=100000, n_epoch=5000, kl_coef=.01):
         '''
         model_path: If `None`, then initialize an untrained model. Otherwise, load from the path. 
         '''
@@ -159,7 +159,6 @@ class CVAE:
         labels = self.__one_hot(labels) 
         # encode and return 
         return self.encoder.predict([x, labels]) 
-        pass
 
     def save_model(self, path): 
         self.cvae.save_weights(path) 

@@ -23,6 +23,8 @@ spec:
               value: "5-wo"
             - name: EMBEDDING_DIM
               value: "${RL_HYPOTHESIS_1_EMBEDDING_DIM}"
+            - name: CUDA_VISIBLE_DEVICES
+              value: "-1"
           ports:
             - containerPort: 8081
           resources:
