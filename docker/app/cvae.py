@@ -35,7 +35,7 @@ class CVAE:
     '''
     Conditional Variational Autoencoder
     '''
-    def __init__(self, data_dim, label_dim, latent_dim=3, n_hidden=256, model_path=None, batch_size=100000, n_epoch=5000, kl_coef=.01):
+    def __init__(self, data_dim, label_dim, latent_dim=7, n_hidden=256, model_path=None, batch_size=100000, n_epoch=2500, kl_coef=.01):
         '''
         model_path: If `None`, then initialize an untrained model. Otherwise, load from the path. 
         '''
