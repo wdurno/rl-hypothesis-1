@@ -9,14 +9,11 @@ echo "===="
 env | grep RL_HYPOTHESIS_1  
 echo "===="
 
-echo "building image..."
+echo "building base image..."
 
 echo "===="
-cd docker/ai
-cp $RL_HYPOTHESIS_1_SERVICE_ACCOUNT_JSON_PATH app/service-account.json 
+cd docker/ai-base
 cat docker-build.sh 
 echo "===="
 bash docker-build.sh 
-echo "===="
-rm app/service-account.json
 
