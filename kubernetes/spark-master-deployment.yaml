@@ -31,6 +31,8 @@ spec:
               value: "$RL_HYPOTHESIS_1_ZONE"
             - name: INSTANCE
               value: "$RL_HYPOTHESIS_1_INSTANCE"
+            - name: CUDA_VISIBLE_DEVICES
+              value: "-1"
           resources:
             requests:
               cpu: "100m"

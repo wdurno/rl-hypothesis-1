@@ -23,6 +23,8 @@ cvae_simulated_data_path = '/dat/cvae-example-data.pkl'
 cvae_simulated_data_name = 'cvae-example-data.pkl'
 cvae_fit_stats_path = '/dat/cvae-fit-stats.pkl'
 cvae_fit_stats_name = 'cvae-fit-stats.pkl'
+cvae_embedding_sample_path = '/dat/cvae-embedding-sample.pkl'
+cvae_embedding_sample_name = 'cvae-embedding-sample.pkl'
 
 if not os.path.isfile(cvae_data_path):
     download_blob(cvae_data_name, cvae_data_path) 
@@ -33,7 +35,7 @@ class CVAE:
     '''
     Conditional Variational Autoencoder
     '''
-    def __init__(self, data_dim, label_dim, latent_dim=100, n_hidden=EMBEDDING_DIM, model_path=None, batch_size=100000, n_epoch=300, kl_coef=.1):
+    def __init__(self, data_dim, label_dim, latent_dim=7, n_hidden=256, model_path=None, batch_size=100000, n_epoch=2500, kl_coef=.001):
         '''
         model_path: If `None`, then initialize an untrained model. Otherwise, load from the path. 
         '''
@@ -132,12 +134,32 @@ class CVAE:
                 verbose=1)
     
     def generate(self, labels, apply_one_hot_transform=True):
+        '''
+        Generates data conditional on labels. 
+        If labels are non-vector integers, use `apply_one_hot_transform=True`.
+        '''
         labels = np.array(labels) 
         if apply_one_hot_transform:
             labels = self.__one_hot(labels) 
         z = np.random.normal(size=(labels.shape[0], self.latent_dim)) 
         return self.generator.predict(np.concatenate([z, labels], axis=1)) 
     
+    def encode(self, n=10000):
+        '''
+        Randomly samples from `cvae-data.pkl` and encodes into the latent space. 
+        '''
+        if n < 0:
+            n = data[0].shape[0] 
+        # sample 
+        idx = np.random.randint(data[0].shape[0], size=n) 
+        x = np.take(data[0], idx, axis=0) 
+        labels = np.take(data[1], idx, axis=0) 
+        # transform to one-hots 
+        labels = np.array(labels) 
+        labels = self.__one_hot(labels) 
+        # encode and return 
+        return self.encoder.predict([x, labels]) 
+
     def save_model(self, path): 
         self.cvae.save_weights(path) 
     pass
@@ -158,6 +180,11 @@ if __name__ == '__main__':
     with open(cvae_simulated_data_path, 'wb') as f: 
         pickle.dump(cvae_simulated_data, f) 
     upload_blob(cvae_simulated_data_path, cvae_simulated_data_name) 
+    ## save an embedding sample for diagnostics 
+    cvae_embedding_sample = cvae.encode() 
+    with open(cvae_embedding_sample_path, 'wb') as f:
+        pickle.dump(cvae_embedding_sample, f) 
+    upload_blob(cvae_embedding_sample_path, cvae_embedding_sample_name) 
     while True:
         shutdown()
         sleep(100) 
