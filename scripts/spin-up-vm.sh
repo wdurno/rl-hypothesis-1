@@ -1,6 +1,6 @@
 gcloud beta compute --project=${RL_HYPOTHESIS_1_PROJECT} instances create-with-container ${RL_HYPOTHESIS_1_INSTANCE} \
 	--zone=${RL_HYPOTHESIS_1_ZONE} \
-	--machine-type=n1-standard-16 \
+	--machine-type=${RL_HYPOTHESIS_1_MACHINE_TYPE} \
 	--subnet=default \
 	--network-tier=PREMIUM \
 	--metadata=google-logging-enabled=true \
@@ -19,4 +19,5 @@ gcloud beta compute --project=${RL_HYPOTHESIS_1_PROJECT} instances create-with-c
         --container-env=ZONE=${RL_HYPOTHESIS_1_ZONE} \
 	--container-env=PROJECT=${RL_HYPOTHESIS_1_PROJECT} \
 	--container-env=INSTANCE=${RL_HYPOTHESIS_1_INSTANCE} \
-	--container-env=EMBEDDING_DIM=${RL_HYPOTHESIS_1_EMBEDDING_DIM}
+	--container-env=EMBEDDING_DIM=${RL_HYPOTHESIS_1_EMBEDDING_DIM} \
+	--container-command="-v /var/run/docker.sock:/var/run/docker.sock" 

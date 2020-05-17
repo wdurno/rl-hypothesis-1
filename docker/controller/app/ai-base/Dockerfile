@@ -3,15 +3,15 @@
 FROM gcr.io/gdax-dnn/rl-base@sha256:9acd3a449e9460a150379a03c43e7a59d56cd0f82d7d4a2eeb8c4965fa31de56
 
 ARG BUCKET_NAME
-ENV BUCKET_NAME=${BUCKET_NAME}
-ENV HADOOP_VERSION 2.7.3
-ENV SPARK_VERSION 2.2.1
-ENV PYSPARK_PYTHON python3
-ENV PYTHONPATH /app
-ENV LD_LIBRARY_PATH /cuda/lib64
+ENV BUCKET_NAME=${BUCKET_NAME} \
+    HADOOP_VERSION=2.7.3 \
+    SPARK_VERSION=2.2.1 \
+    PYSPARK_PYTHON=python3 \
+    PYTHONPATH=/app \
+    LD_LIBRARY_PATH=/cuda/lib64
 
 # cudnn drivers 
-ADD cudnn-8.0-linux-x64-v6.0.tgz /cudnn-8.0-linux-x64-v6.0.tgz
+COPY cudnn-8.0-linux-x64-v6.0.tgz /cudnn-8.0-linux-x64-v6.0.tgz
 
 # ml dependencies 
 RUN pip install scikit-image && \

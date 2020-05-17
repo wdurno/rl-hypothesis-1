@@ -1,9 +1,7 @@
-FROM docker:latest
+FROM docker:dind
 
 ENV GCLOUD_SDK_URL="https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz" \
     PATH="/opt/google-cloud-sdk/bin:${PATH}"
-
-WORKDIR /opt/app
 
 RUN apk --update --no-cache add \
         bash \
@@ -11,6 +9,7 @@ RUN apk --update --no-cache add \
         curl \
         openssl \
         python && \
+        gettext && \
     wget -O - -q "${GCLOUD_SDK_URL}" | tar zxf - -C /opt && \
     ln -s /lib /lib64 && \
     gcloud config set core/disable_usage_reporting true && \
@@ -18,3 +17,10 @@ RUN apk --update --no-cache add \
     gcloud config set metrics/environment github_docker_image && \
     gcloud --version && \
     rm -rf /tmp/* && rm -rf /opt/google-cloud-sdk/.install/.backup
+
+ADD app /app
+
+WORKDIR /app
+
+#CMD ["bash", "/app/entrypoint.sh"]
+
