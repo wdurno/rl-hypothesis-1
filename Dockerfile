@@ -22,5 +22,3 @@ ADD app /app
 
 WORKDIR /app
 
-#CMD ["bash", "/app/entrypoint.sh"]
-

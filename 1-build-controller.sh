@@ -12,9 +12,9 @@ echo "===="
 echo "building controller image..."
 
 echo "===="
-cp config.sh docker/controller/app/config.sh
-cp $RL_HYPOTHESIS_1_SERVICE_ACCOUNT_JSON_PATH docker/controller/app/service-account.json 
-cd docker/controller
+cp config.sh /app/config.sh
+cp $RL_HYPOTHESIS_1_SERVICE_ACCOUNT_JSON_PATH /app/service-account.json 
+cd 
 cat docker-build.sh 
 echo "===="
 bash docker-build.sh 
