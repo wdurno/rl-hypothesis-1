@@ -7,4 +7,4 @@ export RL_HYPOTHESIS_1_INSTANCE=x${RL_HYPOTHESIS_1_JOB}-${RL_HYPOTHESIS_1_JOB_ID
 export RL_HYPOTHESIS_1_DOCKER_IMAGE=${RL_HYPOTHESIS_1_DOCKER_CONTROLLER_IMAGE}
 export RL_HYPOTHESIS_1_MACHINE_TYPE=e2-standard-2
 ## run 
-source /app/scripts/spin-up-base-cluster.sh
+source app/ai/app/scripts/spin-up-base-cluster.sh

@@ -14,14 +14,16 @@ ENV BUCKET_NAME=${BUCKET_NAME} \
 COPY cudnn-8.0-linux-x64-v6.0.tgz /cudnn-8.0-linux-x64-v6.0.tgz
 
 # ml dependencies 
-RUN pip install scikit-image && \
+RUN apt update && \
+apt-get update && \
+apt-get install vim -y && \
+apt-get install openjdk-8-jdk -y && \
+pip install scikit-image && \
 pip install keras==2.2.5 && \
 pip install google-cloud-storage && \
 pip install google-api-python-client && \
 pip install oauth2client && \
-apt-get update && \
-apt-get install vim -y && \
-apt-get install openjdk-8-jdk -y && \
+pip install apache-airflow && \
 # gpu 
 apt-get install software-properties-common -y && \
 DEBIAN_FRONTEND=noninteractive apt-get install lightdm -y && \

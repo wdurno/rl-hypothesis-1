@@ -1,6 +1,6 @@
 
-# enable detach with "&" 
-set -m 
+# override JOB with first arg if provided 
+if [ -z "$1" ]; then echo "$JOB"; else export JOB=$1; fi
 
 # directory may already exist as K8s volume mount 
 mkdir -p /dat
@@ -32,11 +32,7 @@ fi
 if [ $JOB == "5-ma" ]; then
         cd /app
 	# run master in background 
-        spark/spark-master &
-	# give master service time to start 
-	sleep 3
-       	# start job 
-	spark-submit spark_simple_eval.py
+        spark/spark-master 
 fi
 
 if [ $JOB == "5-wo" ]; then

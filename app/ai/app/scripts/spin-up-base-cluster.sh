@@ -3,7 +3,7 @@ gcloud beta container \
 	clusters create "${RL_HYPOTHESIS_1_INSTANCE}" \
 	--zone "us-central1-a" \
 	--no-enable-basic-auth \
-	--cluster-version "1.14.10-gke.27" \
+	--cluster-version "${RL_HYPOTHESIS_1_GKE_VERSION}" \
 	--machine-type "e2-standard-2" \
 	--image-type "COS" \
 	--disk-type "pd-standard" \

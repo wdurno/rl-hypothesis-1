@@ -33,6 +33,8 @@ spec:
               value: "$RL_HYPOTHESIS_1_INSTANCE"
             - name: CUDA_VISIBLE_DEVICES
               value: "-1"
+            - name: JOB_ID
+              value: "$RL_HYPOTHESIS_1_JOB_ID"
           resources:
             requests:
               cpu: "100m"
