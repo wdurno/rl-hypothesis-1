@@ -8,7 +8,9 @@ ENV BUCKET_NAME=${BUCKET_NAME} \
     SPARK_VERSION=2.2.1 \
     PYSPARK_PYTHON=python3 \
     PYTHONPATH=/app \
-    LD_LIBRARY_PATH=/cuda/lib64
+    LD_LIBRARY_PATH=/cuda/lib64 \
+    GCLOUD_SDK_URL="https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz" \
+    PATH="/opt/google-cloud-sdk/bin:/opt/spark/bin:${PATH}" 
 
 # cudnn drivers 
 COPY cudnn-8.0-linux-x64-v6.0.tgz /cudnn-8.0-linux-x64-v6.0.tgz
@@ -16,6 +18,7 @@ COPY cudnn-8.0-linux-x64-v6.0.tgz /cudnn-8.0-linux-x64-v6.0.tgz
 # ml dependencies 
 RUN apt update && \
 apt-get update && \
+apt-get install wget -y && \
 apt-get install vim -y && \
 apt-get install openjdk-8-jdk -y && \
 pip install scikit-image && \
@@ -24,6 +27,12 @@ pip install google-cloud-storage && \
 pip install google-api-python-client && \
 pip install oauth2client && \
 pip install apache-airflow && \
+# kubectl 
+curl -o /bin/kubectl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl && \
+chmod +x /bin/kubectl && \
+# gcloud 
+wget -O - -q "${GCLOUD_SDK_URL}" | tar zxf - -C /opt && \
+gcloud components install beta --quiet && \
 # gpu 
 apt-get install software-properties-common -y && \
 DEBIAN_FRONTEND=noninteractive apt-get install lightdm -y && \

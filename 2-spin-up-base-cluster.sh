@@ -1,6 +1,6 @@
 ## configure
 source config.sh
-source get-job-id.sh
+if [ -z "$RL_HYPOTHESIS_1_JOB_ID" ]; then echo "Please get a job id"; exit 1; fi
 echo JOB_ID: ${RL_HYPOTHESIS_1_JOB_ID}
 export RL_HYPOTHESIS_1_JOB=k8s
 export RL_HYPOTHESIS_1_INSTANCE=x${RL_HYPOTHESIS_1_JOB}-${RL_HYPOTHESIS_1_JOB_ID}
